@@ -50,8 +50,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary1\PizzaCooking.Domain.csproj">
-      <Project>{DE60A4E0-3FAF-47F1-AAC0-6F923877F325}</Project>
+    <ProjectReference Include="..\PizzaCooking.Domain\PizzaCooking.Domain.csproj">
+      <Project>{8d1e313e-a4ad-4f45-b5bd-e353e00cef26}</Project>
       <Name>PizzaCooking.Domain</Name>
     </ProjectReference>
   </ItemGroup>
