@@ -1,0 +1,21 @@
+
+            //var filePath = "Text.txt";
+            //if (File.Exists(filePath))
+            //{
+            //    using (var sr = new StreamReader(""))
+            //    {
+
+            //    }
+            //}
+            //else
+            //{
+            //    throw new Exception($"File does not exist: {filePath}");
+            //}
+
+            //using (var fs = new FileStream(filePath, FileMode.Append))
+            //{
+            //    using (var sw = new StreamWriter(fs))
+            //    {
+
+            //    }
+            //}

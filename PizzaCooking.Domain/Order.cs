@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace PizzaCooking.Domain
 {
     public class Order
     {
-        static StreamWriter sw = new StreamWriter("Text.txt");
         public bool Taken=false;
         public IEnumerable<int> GetSequence()
         {
@@ -14,21 +12,21 @@ namespace PizzaCooking.Domain
             {
                 State = "Is Cooking";
                 ShowState();
-                yield return 1;
+                yield return 0;
             }
 
             while (CurrentTime >= OrderRecievedTime + TimeToCook && !Taken)
             {
                 State = "Is Ready";
                 ShowState();
-                yield return 2;
+                yield return 0;
             }
 
             while (CurrentTime < TimeTaken+TimeToDeliver)
             {
                 State = "Is Delivering";
                 ShowState();
-                yield return 3;
+                yield return 0;
             }
         }
 
@@ -50,8 +48,7 @@ namespace PizzaCooking.Domain
 
         public void ShowState()
         {
-            sw.WriteLine("{0} {1} {2}", OrderNumber, State, CurrentTime);
-            Console.Write("Order number {0} {1} ", OrderNumber, State);
+            //Console.WriteLine("Order number {0} {1} ", OrderNumber, State);
         }
     }
 }
