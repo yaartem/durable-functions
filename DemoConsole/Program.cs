@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Odbc;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using PizzaCooking.Domain;
 
 namespace DemoConsole
-{ 
+{
     class Program
     {
         static void Main()
