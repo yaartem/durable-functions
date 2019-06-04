@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 
 namespace PizzaCooking.Domain
 {
@@ -30,8 +32,9 @@ namespace PizzaCooking.Domain
             }
         }
 
-        public Order(TimeSpan timeToDeliver, TimeSpan timeToCook, DateTime orderRecievedTime, int orderNumber)
+        public Order(TimeSpan timeToDeliver, TimeSpan timeToCook, DateTime orderRecievedTime, int orderNumber, string content)
         {
+            Content = content;
             TimeToDeliver = timeToDeliver;
             TimeToCook = timeToCook;
             OrderRecievedTime = orderRecievedTime;
@@ -45,10 +48,11 @@ namespace PizzaCooking.Domain
         public DateTime CurrentTime { get; set; }
         public string State { get; set; }
         public DateTime TimeTaken {get; set;}
+        public string Content { get; set; }
 
         public void ShowState()
         {
-            //Console.WriteLine("Order number {0} {1} ", OrderNumber, State);
+            Console.WriteLine("Order number {0} {1} ", OrderNumber, State);
         }
     }
 }

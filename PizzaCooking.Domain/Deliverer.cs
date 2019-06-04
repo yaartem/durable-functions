@@ -21,7 +21,7 @@ namespace PizzaCooking.Domain
                 {
                     if (!order.Taken)
                     {
-                        //Console.WriteLine("Deliverer number {0} Took Order number{1} ", DelivererNum, order.OrderNumber);
+                        Console.WriteLine("Deliverer number {0} Took Order number{1} ", DelivererNum, order.OrderNumber);
                         order.Taken = true;
                         Busy = true;
                         order.TimeTaken = order.CurrentTime;
