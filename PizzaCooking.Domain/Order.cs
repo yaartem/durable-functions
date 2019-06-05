@@ -29,6 +29,7 @@ namespace PizzaCooking.Domain
 
         public bool TakenToDeliver=false;
         public bool TakenToCook = false;
+
         public IEnumerable<int> GetSequence()
         {
             while (OrderRecievedTime != OrderTakenForCookingTime && !TakenToCook)
@@ -64,6 +65,7 @@ namespace PizzaCooking.Domain
             TimeToCook = timeToCook;
             OrderRecievedTime = orderRecievedTime;
             OrderNumber = orderNumber;
+            AnyDrinks = false;
             FillwithFood();
         }
 
@@ -77,6 +79,7 @@ namespace PizzaCooking.Domain
         public DateTime TimeTaken {get; set;}
         public string Content { set; get; }
         public int Pizzas { set; get; }
+        public bool AnyDrinks { set; get; }
 
         public void ShowState()
         {
@@ -96,6 +99,7 @@ namespace PizzaCooking.Domain
                     case 2: Content = Content + ", "  + ((Menu.Meal)rnd.Next(0, 4)).ToString();
                         break;
                     case 3: Content = Content + ", " + ((Menu.Drinks)rnd.Next(0, 6)).ToString();
+                        AnyDrinks = true;
                         break;
                     default: break;
                 }

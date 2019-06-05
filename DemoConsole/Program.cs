@@ -30,25 +30,28 @@ namespace DemoConsole
 
             var sw = Stopwatch.StartNew();
 
-            var startTime = new DateTime(2019,3,27, 9,0,0);
+            var startTime = new DateTime(2019, 3, 27, 8, 59, 0);
             var currentTime = startTime;
 
             var orders = new Queue<Order>();
             var ordernum = 0;
 
             Names name;
-            var groupDeliverers=new List<Deliverer>();
+            var groupDeliverers = new List<Deliverer>();
             for (int i = 1; i <= 20; i++)
             {
                 name = (Names) rnd.Next(0, 32);
-                groupDeliverers.Add(new Deliverer(i,name.ToString()));
+                groupDeliverers.Add(new Deliverer(i, name.ToString()));
             }
+
             var groupPizzamakers = new List<Pizzamaker>();
             for (int i = 1; i <= 10; i++)
             {
-                name = (Names)rnd.Next(0, 32);
+                name = (Names) rnd.Next(0, 32);
                 groupPizzamakers.Add(new Pizzamaker(i, name.ToString()));
             }
+            name = (Names)rnd.Next(0, 32);
+            Manager boss = new Manager(name.ToString());
 
             var currentlyInProcessing = new List<(Order order, IEnumerator<int> process)>();
 
@@ -56,16 +59,13 @@ namespace DemoConsole
 
             Alice a = new Alice();
             DateTime FraseSaid = currentTime;
+            List<(Order order, IEnumerator<int> process)> nextInProcessing;
+
+
             
-            if (currentTime.Hour == 9 && currentTime.Minute == 0)
-            {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("{0} {1}", currentTime, a.helloWords[rnd.Next(0, 4)]);
-                Console.ForegroundColor = ConsoleColor.White;
-            }
             while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
-                if (rnd.Next(1,100)>90 && currentTime.Hour < 23)
+                if (rnd.Next(1,101)>80 && currentTime.Hour < 23)
                 {
                     orders.Enqueue(
                     new Order(TimeSpan.FromMinutes(rnd.Next(15,31)), TimeSpan.FromMinutes(rnd.Next(5,11)),
@@ -73,11 +73,15 @@ namespace DemoConsole
                     );
                     ordernum++;
                 }
+
+                nextInProcessing = new List<(Order order, IEnumerator<int> process)>();
+
                 Thread.Sleep(1);
                 currentTime = currentTime.AddMinutes(1);
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Current Time: {0}", currentTime);
-
-                var nextInProcessing = new List<(Order order, IEnumerator<int> process)>();
+                a.AllFrases(boss, ref currentTime, currentlyInProcessing, groupPizzamakers);
+                Console.ForegroundColor = ConsoleColor.White;
 
                 if (orders.Count > 0)
                 {
@@ -94,6 +98,7 @@ namespace DemoConsole
                     item.order.CurrentTime = currentTime;
                     if (item.process.MoveNext())
                     {
+                        a.Notification(item);
                         count++;
                         nextInProcessing.Add(item);
                         foreach (Pizzamaker i in groupPizzamakers) i.CheckOrder(item.order);
@@ -105,34 +110,12 @@ namespace DemoConsole
                         item.process.Dispose();
                     }
                 }
-                if (currentTime.Hour==13 && currentTime.Minute==0)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine("{0} {1}", currentTime, a.halfWords[rnd.Next(0, 2)]);
-                    Console.ForegroundColor = ConsoleColor.White;
-                    currentTime = currentTime.AddMinutes(30);
-                    FraseSaid = currentTime;
-                }
-                if (currentTime.Hour == 22 && currentTime.Minute == 0)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine("{0} {1}", currentTime, a.nearlyEndWords[rnd.Next(0, 2)]);
-                    Console.ForegroundColor = ConsoleColor.White;
-                    FraseSaid = currentTime;
-                }
                 currentlyInProcessing = nextInProcessing;
-                if (nextInProcessing.Count > 10 && currentTime>=FraseSaid.AddMinutes(30))
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine("{0} {1}", currentTime, a.manyOrdersWords[rnd.Next(0, 2)]);
-                    Console.ForegroundColor = ConsoleColor.White;
-                    FraseSaid = currentTime;
-                }
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine("{0} {1}", currentTime, a.finishWords[rnd.Next(0,2)]);
             Console.ForegroundColor = ConsoleColor.White;
-            //Console.WriteLine($"Finished {count} synchronizations in {sw.Elapsed.TotalSeconds} sec.");
+            Console.WriteLine($"Finished {count} synchronizations in {sw.Elapsed.TotalSeconds} sec.");
 
             Console.ReadKey();
         }
