@@ -59,14 +59,15 @@ namespace PizzaCooking.Domain
             }
         }
 
-        public Order(TimeSpan timeToDeliver, TimeSpan timeToCook, DateTime orderRecievedTime, int orderNumber)
+        public Order(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber)
         {
+            FillwithFood();
             TimeToDeliver = timeToDeliver;
-            TimeToCook = timeToCook;
+            TimeToCook = TimeSpan.FromMinutes(Pizzas*5);
             OrderRecievedTime = orderRecievedTime;
             OrderNumber = orderNumber;
             AnyDrinks = false;
-            FillwithFood();
+            
         }
 
         public TimeSpan TimeToDeliver{get;}
@@ -88,6 +89,7 @@ namespace PizzaCooking.Domain
 
         public void FillwithFood()
         {
+            Pizzas = 1;
             Content = ((Menu.Pizza)rnd.Next(0, 8)).ToString();
             while (rnd.Next(0,3) == 0)
             {

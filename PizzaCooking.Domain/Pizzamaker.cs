@@ -11,6 +11,7 @@ namespace PizzaCooking.Domain
         public string Name { get; }
         public int OrdersDone { set; get; }
         private bool Busy { get; set; }
+        private bool ForgotToTake { set; get; }
 
         public Pizzamaker(int pizzamakerNum, string name)
         {
@@ -24,16 +25,27 @@ namespace PizzaCooking.Domain
         {
             if (!Busy)
             {
-                if (order.State == "Is Waiting To Be Cooked")
+                if (OrdersDone > 10)
                 {
-                    if (!order.TakenToCook)
+                    if(OrdersDone > 20) ForgotToTake = rnd.Next(0, 100) == 0 ? false : true;
+                    else
+                        ForgotToTake = rnd.Next(0, 10) == 0 ? false : true;
+                }  
+                else ForgotToTake = rnd.Next(0, 2) == 0 ? true : false;
+
+                if(!ForgotToTake)
+                {
+                    if (order.State == "Is Waiting To Be Cooked")
                     {
-                        Console.WriteLine("Pizzamaker number {0} Took Order number{1} ", PizzamakerNum, order.OrderNumber);
-                        order.TakenToCook = true;
-                        Busy = true;
-                        order.OrderTakenForCookingTime = order.CurrentTime;
+                        if (!order.TakenToCook)
+                        {
+                            Console.WriteLine("Pizzamaker number {0} Took Order number{1} ", PizzamakerNum, order.OrderNumber);
+                            order.TakenToCook = true;
+                            Busy = true;
+                            order.OrderTakenForCookingTime = order.CurrentTime;
+                        }
                     }
-                }
+                } 
             }
             else
             {

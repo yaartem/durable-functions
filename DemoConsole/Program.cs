@@ -65,22 +65,21 @@ namespace DemoConsole
             
             while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
-                if (rnd.Next(1,101)>80 && currentTime.Hour < 23)
+                if (rnd.Next(1,101)>80 && currentTime.Hour < 23 && currentTime.Day==startTime.Day)
                 {
                     orders.Enqueue(
-                    new Order(TimeSpan.FromMinutes(rnd.Next(15,31)), TimeSpan.FromMinutes(rnd.Next(5,11)),
-                    currentTime, ordernum)
+                    new Order(TimeSpan.FromMinutes(rnd.Next(15,31)), currentTime, ordernum)
                     );
                     ordernum++;
                 }
 
                 nextInProcessing = new List<(Order order, IEnumerator<int> process)>();
 
-                Thread.Sleep(1);
+                Thread.Sleep(0);
                 currentTime = currentTime.AddMinutes(1);
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Current Time: {0}", currentTime);
-                a.AllFrases(boss, ref currentTime, currentlyInProcessing, groupPizzamakers);
+                if(currentTime.TimeOfDay <= TimeSpan.FromHours(23)) a.AllFrases(boss, ref currentTime, currentlyInProcessing, groupPizzamakers, ref FraseSaid);
                 Console.ForegroundColor = ConsoleColor.White;
 
                 if (orders.Count > 0)
@@ -113,7 +112,7 @@ namespace DemoConsole
                 currentlyInProcessing = nextInProcessing;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("{0} {1}", currentTime, a.finishWords[rnd.Next(0,2)]);
+            Console.WriteLine("Все доставлено и сделано! Ждем следующего дня");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"Finished {count} synchronizations in {sw.Elapsed.TotalSeconds} sec.");
 

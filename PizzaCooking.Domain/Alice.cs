@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using PizzaCooking.Domain;
 
 namespace PizzaCooking.Domain
@@ -31,7 +32,6 @@ namespace PizzaCooking.Domain
             nearlyEndWords.Add("Не спать! До конца смены всего час!");
             nearlyEndWords.Add("Час до конца! Последние заказы! Крепитесь!");
         }
-           
 
         public void BlameLaties(List<Pizzamaker> guys)
         {
@@ -57,21 +57,20 @@ namespace PizzaCooking.Domain
             
         }
 
-        public string BestPizzamaker(List<Pizzamaker> guys)
+        public int BestPizzamaker(List<Pizzamaker> guys)
         {
             int max=0;
-            for (int i = 1; i <= guys.Count; i++)
+            for (int i = 1; i < guys.Count; i++)
             {
-                if (guys[i].OrdersDone > guys[i - 1].OrdersDone)
+                if (guys[i].OrdersDone > guys[max].OrdersDone)
                     max = i;
             }
-            return guys[max].Name;
+            return max;
         }
 
         public void AllFrases(Manager boss, ref DateTime currentTime, List<(Order order,
-            IEnumerator<int> process)> currentlyInProcessing, List<Pizzamaker> groupPizzamakers)
+            IEnumerator<int> process)> currentlyInProcessing, List<Pizzamaker> groupPizzamakers, ref DateTime FraseSaid)
         {
-            var FraseSaid = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, 9, 0, 0);
             IntializeAlice(boss);
             if (currentTime.Hour == 9 && currentTime.Minute == 0)
             {
@@ -79,7 +78,7 @@ namespace PizzaCooking.Domain
                 Console.WriteLine("{0} {1}", currentTime, helloWords[rnd.Next(0, 4)]);
 
                 Console.ForegroundColor = ConsoleColor.White;
-            } // Поздороваться утром
+            } //Поздороваться утром
             if (currentTime.Hour == 13 && currentTime.Minute == 0)
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -94,23 +93,70 @@ namespace PizzaCooking.Domain
                 Console.WriteLine("{0} {1}", currentTime, nearlyEndWords[rnd.Next(0, 2)]);
                 Console.ForegroundColor = ConsoleColor.White;
                 FraseSaid = currentTime;
-            } //за час до конца
-            if (currentlyInProcessing.Count > 10 && currentTime >= FraseSaid.AddMinutes(30))
+            } //За час до конца
+            if (currentTime.Hour == 23 && currentTime.Minute == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("{0}", finishWords[rnd.Next(0,2)]);
+                Console.WriteLine("Есть люди как люди, а есть {0}! {1}!Слишком много заказов!",
+                    groupPizzamakers[BestPizzamaker(groupPizzamakers)].Name, groupPizzamakers[BestPizzamaker(groupPizzamakers)].OrdersDone);
+                Console.WriteLine();
+                foreach (var man in groupPizzamakers)
+                {
+                    if (man.OrdersDone > 20)
+                    {
+                        Console.WriteLine("Большой молодец-{0}, {1} выполнено заказов", man.Name, man.OrdersDone);
+                    }
+                    else
+                    {
+                        if (man.OrdersDone > 10)
+                        {
+                            Console.WriteLine("Молодец-{0}, {1} выполнено заказов", man.Name, man.OrdersDone);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ничего так-{0}, {1} выполнено заказов", man.Name, man.OrdersDone);
+                            Console.WriteLine("Шучу, умница ты, {0}", man.Name);
+                        }
+                    }
+                }
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.White;
+            } //Конец работы
+            if (currentlyInProcessing.Count > 10 && currentTime >= FraseSaid.AddMinutes(15))
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("{0} {1}", currentTime, manyOrdersWords[rnd.Next(0, 3)]);
                 Console.ForegroundColor = ConsoleColor.White;
                 FraseSaid = currentTime;
-            } // много заказов
+            } //Много заказов
             if (currentTime.Hour == 10 && currentTime.Minute==0)
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 BlameLaties(groupPizzamakers);
                 Console.ForegroundColor = ConsoleColor.White;
                 
-            } //отчитывание опоздавших
-
-            
+            } //Отчитывание опоздавших
+            if (currentTime >= FraseSaid.AddMinutes(30))
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                switch (rnd.Next(1, 6))
+                {
+                    case 1:
+                        Console.WriteLine("{0} выполнил больше всех заказов! Можно и перерыв на кофе",
+                            groupPizzamakers[BestPizzamaker(groupPizzamakers)].Name);
+                        FraseSaid = currentTime;
+                        break;
+                    case 2:
+                        Console.WriteLine("Новый король пиццы-{0}, больше всего заказов за сегодня!",
+                            groupPizzamakers[BestPizzamaker(groupPizzamakers)].Name);
+                        FraseSaid = currentTime;
+                        break;
+                    default:
+                        break;
+                }
+                Console.ForegroundColor = ConsoleColor.White;
+            } //Хвальба лучших
         }
 
         public void Notification((Order order, IEnumerator<int> process) item)
@@ -140,7 +186,7 @@ namespace PizzaCooking.Domain
                         switch (rnd.Next(1, 4))
                         {
                             case 1:
-                                Console.WriteLine("Напитки в заказе! Наверное, в пустыню едет…");
+                                Console.WriteLine("Напитки в заказе! Наверное, в пустыню едет...");
                                 break;
                             case 2:
                                 Console.WriteLine("Заказ№{0} с напитками, не забудьте", item.order.OrderNumber);
@@ -167,6 +213,20 @@ namespace PizzaCooking.Domain
                         default:
                             break;
                     }
+                }
+            }
+            if (item.order.State == "Is Ready To Be Taken")
+            {
+                switch (rnd.Next(1, 5))
+                {
+                    case 1:
+                        Console.WriteLine("Травка зеленеет, солнышко блестит, заказ№{0} к курьерам летит!", item.order.OrderNumber);
+                        break;
+                    case 2:
+                        Console.WriteLine("<<{0}>> выполнен! Доставщики, ваш выход", item.order.Content);
+                        break;
+                    default:
+                        break;
                 }
             }
             Console.ForegroundColor = ConsoleColor.White;
