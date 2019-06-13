@@ -30,8 +30,7 @@ namespace DemoConsole
 
             var sw = Stopwatch.StartNew();
 
-            var startTime = new DateTime(2019, 3, 27, 8, 59, 0);
-            var currentTime = startTime;
+            var currentTime = new DateTime(2019, 3, 27, 8, 59, 0);
 
             var orders = new Queue<Order>();
             var ordernum = 0;
@@ -57,7 +56,7 @@ namespace DemoConsole
 
             var count = 0;
 
-            Alice a = new Alice();
+            Alice a = new Alice(boss);
             DateTime FraseSaid = currentTime;
             List<(Order order, IEnumerator<int> process)> nextInProcessing;
 
@@ -65,7 +64,7 @@ namespace DemoConsole
             
             while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
-                if (rnd.Next(1,101)>80 && currentTime.Hour < 23 && currentTime.Day==startTime.Day)
+                if (rnd.Next(1,101)>80 && currentTime.Hour < 23)
                 {
                     orders.Enqueue(
                     new Order(TimeSpan.FromMinutes(rnd.Next(15,31)), currentTime, ordernum)
@@ -79,8 +78,9 @@ namespace DemoConsole
                 currentTime = currentTime.AddMinutes(1);
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Current Time: {0}", currentTime);
-                if(currentTime.TimeOfDay <= TimeSpan.FromHours(23)) a.AllFrases(boss, ref currentTime, currentlyInProcessing, groupPizzamakers, ref FraseSaid);
                 Console.ForegroundColor = ConsoleColor.White;
+                a.CurrentTime = currentTime;
+                a.GetSequence(boss,currentlyInProcessing,groupPizzamakers).GetEnumerator().MoveNext();
 
                 if (orders.Count > 0)
                 {
@@ -97,11 +97,10 @@ namespace DemoConsole
                     item.order.CurrentTime = currentTime;
                     if (item.process.MoveNext())
                     {
-                        a.Notification(item);
                         count++;
                         nextInProcessing.Add(item);
-                        foreach (Pizzamaker i in groupPizzamakers) i.CheckOrder(item.order);
-                        foreach (Deliverer g in groupDeliverers) g.CheckOrder(item.order);
+                        foreach (Pizzamaker i in groupPizzamakers) i.CheckOrder(item.order); //убрать
+                        foreach (Deliverer g in groupDeliverers) g.CheckOrder(item.order); //убрать
                     }
 
                     else
