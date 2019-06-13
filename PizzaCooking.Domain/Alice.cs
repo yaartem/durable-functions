@@ -15,22 +15,68 @@ namespace PizzaCooking.Domain
         public DateTime CurrentTime { get; set; }
         public DateTime FraseSaid { get; set; }
 
+        /*
+
+                while (не наступило время 9:00) {
+
+                    // Все, что обычно
+                    WhatISayAllTHeTime();
+
+                    yield return 0; //
+                }
+                то, что один раз после 9
+
+                while (не наступило время 10)
+                {
+                    WhatISayAllTHeTime();
+
+                    yield return 0; //
+                }
+
+                // Наказать опоздавших
+                BlameLaties();
+
+
+                while (не наступило время 22)
+                {
+                    WhatISayAllTHeTime();
+
+                    yield return 0; //
+                }
+
+                while (позже 22, и до упора)
+                {
+                    WhatISayAllTHeTime();
+
+                    WhatISayJustBeforeShiftTermination();
+
+                    yield return 0; //
+                }
+
+         */
+
         public IEnumerable<int> GetSequence(Manager boss, List<(Order order,
             IEnumerator<int> process)> currentlyInProcessing, List<Pizzamaker> groupPizzamakers)
         {
-            while (CurrentTime.Hour == 9 && CurrentTime.Minute == 0) //morning
+            while (CurrentTime.TimeOfDay < TimeSpan.FromHours(9))
+            {
+                yield return 0;
+            }
+
+            if (CurrentTime.TimeOfDay < TimeSpan.FromHours(11))
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("{0} {1}", CurrentTime, helloWords[rnd.Next(0, 4)]);
                 Console.ForegroundColor = ConsoleColor.White;
-                yield return 0;
             }
-            while (CurrentTime.Hour == 10 && CurrentTime.Minute == 0) //laties
+
+            while (CurrentTime.TimeOfDay >= TimeSpan.FromHours(10)) //laties
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 BlameLaties(groupPizzamakers);
                 Console.ForegroundColor = ConsoleColor.White;
                 yield return 0;
+                break;
             }
             while (CurrentTime.Hour == 13 && CurrentTime.Minute == 0) //lunchtime
             {
@@ -40,6 +86,7 @@ namespace PizzaCooking.Domain
                 CurrentTime = CurrentTime.AddMinutes(30);
                 FraseSaid = CurrentTime;
                 yield return 0;
+                break;
             }
             while (CurrentTime.Hour == 22 && CurrentTime.Minute == 0) //nearly end
             {
@@ -87,10 +134,10 @@ namespace PizzaCooking.Domain
                 FraseSaid = CurrentTime;
                 yield return 0;
             }
-            while (CurrentTime >= FraseSaid.AddMinutes(60) && CurrentTime.Hour < 23 && currentlyInProcessing.Count!=0) //best
+            while (CurrentTime >= FraseSaid.AddMinutes(60) && CurrentTime.Hour < 23 && currentlyInProcessing.Count != 0) //best
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                switch (rnd.Next(1,3))
+                switch (rnd.Next(1, 3))
                 {
                     case 1:
                         Console.WriteLine("{0} выполнил больше всех заказов! Можно и перерыв на кофе",
@@ -117,7 +164,7 @@ namespace PizzaCooking.Domain
                     {
                         if (item.order.Pizzas >= 3)
                         {
-                            switch (rnd.Next(1,4))
+                            switch (rnd.Next(1, 4))
                             {
                                 case 1:
                                     Console.WriteLine("Кто так много ест? Заказ№{0}! Там больше трех пицц", item.order.OrderNumber);
@@ -154,7 +201,7 @@ namespace PizzaCooking.Domain
                             {
                                 case 1:
                                     Console.WriteLine("Господа, заказ <<{0}>> №{1} не готов! Пора бы им заняться", item.order.Content, item.order.OrderNumber);
-                                     break;
+                                    break;
                                 case 2:
                                     Console.WriteLine("<<{0}>>, заказ №{1} и пиццамейкер! Надо бы сделать", item.order.Content, item.order.OrderNumber);
                                     break;
@@ -165,7 +212,7 @@ namespace PizzaCooking.Domain
                                     break;
                             }
                         }
-                        
+
                     }
 
                     Console.ForegroundColor = ConsoleColor.White;
@@ -177,7 +224,7 @@ namespace PizzaCooking.Domain
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     if (!item.order.TakenToDeliver)
                     {
-                        switch (rnd.Next(1,3))
+                        switch (rnd.Next(1, 3))
                         {
                             case 1:
                                 Console.WriteLine("Травка зеленеет, солнышко блестит, заказ№{0} к курьерам летит!", item.order.OrderNumber);
@@ -214,7 +261,7 @@ namespace PizzaCooking.Domain
 
         public void BlameLaties(List<Pizzamaker> guys)
         {
-            string laties=" ";
+            string laties = " ";
             foreach (var i in guys)
             {
                 if (i.IsLate())
@@ -233,12 +280,12 @@ namespace PizzaCooking.Domain
             {
                 Console.WriteLine("Друзья мои,{0}, опаздываем! В следующий раз так не обижайте меня", laties);
             }
-            
+
         }
 
         public int BestPizzamaker(List<Pizzamaker> guys)
         {
-            int max=0;
+            int max = 0;
             for (int i = 1; i < guys.Count; i++)
             {
                 if (guys[i].OrdersDone > guys[max].OrdersDone)
@@ -247,168 +294,5 @@ namespace PizzaCooking.Domain
             return max;
         }
 
-        //public void AllFrases(Manager boss, ref DateTime currentTime, List<(Order order,
-        //    IEnumerator<int> process)> currentlyInProcessing, List<Pizzamaker> groupPizzamakers, ref DateTime FraseSaid)
-        //{
-        //    IntializeAlice(boss);
-        //    if (currentTime.Hour == 9 && currentTime.Minute == 0)
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        Console.WriteLine("{0} {1}", currentTime, helloWords[rnd.Next(0, 4)]);
-
-        //        Console.ForegroundColor = ConsoleColor.White;
-        //    } //Поздороваться утром
-        //    if (currentTime.Hour == 13 && currentTime.Minute == 0)
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        Console.WriteLine("{0} {1}", currentTime, halfWords[rnd.Next(0, 2)]);
-        //        Console.ForegroundColor = ConsoleColor.White;
-        //        currentTime = currentTime.AddMinutes(30);
-        //        FraseSaid = currentTime;
-        //    } //Обед
-        //    if (currentTime.Hour == 22 && currentTime.Minute == 0)
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        Console.WriteLine("{0} {1}", currentTime, nearlyEndWords[rnd.Next(0, 2)]);
-        //        Console.ForegroundColor = ConsoleColor.White;
-        //        FraseSaid = currentTime;
-        //    } //За час до конца
-        //    if (currentTime.Hour == 23 && currentTime.Minute == 0)
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        Console.WriteLine("{0}", finishWords[rnd.Next(0, 2)]);
-        //        Console.WriteLine("Есть люди как люди, а есть {0}! {1}!Слишком много заказов!",
-        //            groupPizzamakers[BestPizzamaker(groupPizzamakers)].Name, groupPizzamakers[BestPizzamaker(groupPizzamakers)].OrdersDone);
-        //        Console.WriteLine();
-        //        foreach (var man in groupPizzamakers)
-        //        {
-        //            if (man.OrdersDone > 20)
-        //            {
-        //                Console.WriteLine("Большой молодец-{0}, {1} выполнено заказов", man.Name, man.OrdersDone);
-        //            }
-        //            else
-        //            {
-        //                if (man.OrdersDone > 10)
-        //                {
-        //                    Console.WriteLine("Молодец-{0}, {1} выполнено заказов", man.Name, man.OrdersDone);
-        //                }
-        //                else
-        //                {
-        //                    Console.WriteLine("Ничего так-{0}, {1} выполнено заказов", man.Name, man.OrdersDone);
-        //                    Console.WriteLine("Шучу, умница ты, {0}", man.Name);
-        //                }
-        //            }
-        //        }
-        //        Console.WriteLine();
-        //        Console.ForegroundColor = ConsoleColor.White;
-        //    } //Конец работы
-        //    if (currentlyInProcessing.Count > 10 && currentTime >= FraseSaid.AddMinutes(15))
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        Console.WriteLine("{0} {1}", currentTime, manyOrdersWords[rnd.Next(0, 3)]);
-        //        Console.ForegroundColor = ConsoleColor.White;
-        //        FraseSaid = currentTime; 
-        //    } //Много заказов
-        //    if (currentTime.Hour == 10 && currentTime.Minute == 0)
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        BlameLaties(groupPizzamakers);
-        //        Console.ForegroundColor = ConsoleColor.White;
-
-        //    } //Отчитывание опоздавших
-        //    if (currentTime >= FraseSaid.AddMinutes(30))
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        switch (rnd.Next(1, 6))
-        //        {
-        //            case 1:
-        //                Console.WriteLine("{0} выполнил больше всех заказов! Можно и перерыв на кофе",
-        //                    groupPizzamakers[BestPizzamaker(groupPizzamakers)].Name);
-        //                FraseSaid = currentTime;
-        //                break;
-        //            case 2:
-        //                Console.WriteLine("Новый король пиццы-{0}, больше всего заказов за сегодня!",
-        //                    groupPizzamakers[BestPizzamaker(groupPizzamakers)].Name);
-        //                FraseSaid = currentTime;
-        //                break;
-        //            default:
-        //                break;
-        //        }
-        //        Console.ForegroundColor = ConsoleColor.White;
-        //    } //Хвальба лучших
-        //}
-
-        //public void Notification((Order order, IEnumerator<int> process) item)
-        //{
-        //    Console.ForegroundColor = ConsoleColor.DarkRed;
-        //    if (item.order.State == "Is Waiting To Be Cooked")
-        //    {
-        //        if (item.order.Pizzas >= 3 || item.order.AnyDrinks)
-        //        {
-        //            if (item.order.Pizzas >= 3)
-        //            {
-        //                switch (rnd.Next(1, 4))
-        //                {
-        //                    case 1:
-        //                        Console.WriteLine("Кто так много ест? Заказ№{0}! Там больше трех пицц", item.order.OrderNumber);
-        //                        break;
-        //                    case 2:
-        //                        Console.WriteLine("Какой-то праздник намечается? Тогда откуда больше 3 пицц в заказе№{0}?", item.order.OrderNumber);
-        //                        break;
-        //                    default:
-        //                        Console.WriteLine("Заказ№{1} <<{0}>>-многовато пицц для одного заказа", item.order.Content, item.order.OrderNumber);
-        //                        break;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                switch (rnd.Next(1, 4))
-        //                {
-        //                    case 1:
-        //                        Console.WriteLine("Напитки в заказе! Наверное, в пустыню едет...");
-        //                        break;
-        //                    case 2:
-        //                        Console.WriteLine("Заказ№{0} с напитками, не забудьте", item.order.OrderNumber);
-        //                        break;
-        //                    default:
-        //                        Console.WriteLine("Стоит отметить, что заказ№{1} <<{0}>> имеет напитки", item.order.Content, item.order.OrderNumber);
-        //                        break;
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {    
-        //            switch (rnd.Next(1, 10))
-        //            {
-        //                case 1:
-        //                    Console.WriteLine("Господа, заказ <<{0}>> №{1} не готов! Пора бы им заняться", item.order.Content, item.order.OrderNumber);
-        //                    break;
-        //                case 2:
-        //                    Console.WriteLine("<<{0}>>, заказ №{1} и пиццамейкер! Надо бы сделать", item.order.Content, item.order.OrderNumber);
-        //                    break;
-        //                case 3:
-        //                    Console.WriteLine("<<{0}>>, заказ №{1}. За работу, дорогие!", item.order.Content, item.order.OrderNumber);
-        //                    break;
-        //                default:
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //    if (item.order.State == "Is Ready To Be Taken")
-        //    {
-        //        switch (rnd.Next(1, 5))
-        //        {
-        //            case 1:
-        //                Console.WriteLine("Травка зеленеет, солнышко блестит, заказ№{0} к курьерам летит!", item.order.OrderNumber);
-        //                break;
-        //            case 2:
-        //                Console.WriteLine("<<{0}>> выполнен! Доставщики, ваш выход", item.order.Content);
-        //                break;
-        //            default:
-        //                break;
-        //        }
-        //    }
-        //    Console.ForegroundColor = ConsoleColor.White;
-        //}
     }
 }

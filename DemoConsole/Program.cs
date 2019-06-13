@@ -39,14 +39,14 @@ namespace DemoConsole
             var groupDeliverers = new List<Deliverer>();
             for (int i = 1; i <= 20; i++)
             {
-                name = (Names) rnd.Next(0, 32);
+                name = (Names)rnd.Next(0, 32);
                 groupDeliverers.Add(new Deliverer(i, name.ToString()));
             }
 
             var groupPizzamakers = new List<Pizzamaker>();
             for (int i = 1; i <= 10; i++)
             {
-                name = (Names) rnd.Next(0, 32);
+                name = (Names)rnd.Next(0, 32);
                 groupPizzamakers.Add(new Pizzamaker(i, name.ToString()));
             }
             name = (Names)rnd.Next(0, 32);
@@ -61,13 +61,15 @@ namespace DemoConsole
             List<(Order order, IEnumerator<int> process)> nextInProcessing;
 
 
-            
+            var alisaProcess = a.GetSequence(boss, currentlyInProcessing, groupPizzamakers).GetEnumerator();
+
+            var aliceProcessFinished = false;
             while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
-                if (rnd.Next(1,101)>60 && currentTime.Hour < 23)
+                if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23)
                 {
                     orders.Enqueue(
-                    new Order(TimeSpan.FromMinutes(rnd.Next(15,31)), currentTime, ordernum)
+                    new Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum)
                     );
                     ordernum++;
                 }
@@ -80,7 +82,12 @@ namespace DemoConsole
                 Console.WriteLine("Current Time: {0}", currentTime);
                 Console.ForegroundColor = ConsoleColor.White;
                 a.CurrentTime = currentTime;
-                a.GetSequence(boss,currentlyInProcessing,groupPizzamakers).GetEnumerator().MoveNext();
+
+                if (!aliceProcessFinished)
+                {
+                    aliceProcessFinished = !alisaProcess.MoveNext();
+                }
+
 
                 if (orders.Count > 0)
                 {
@@ -108,7 +115,9 @@ namespace DemoConsole
                         item.process.Dispose();
                     }
                 }
-                currentlyInProcessing = nextInProcessing;
+                //currentlyInProcessing = nextInProcessing;
+                currentlyInProcessing.Clear();
+                currentlyInProcessing.AddRange(nextInProcessing);
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine("Все доставлено и сделано! Ждем следующего дня");
