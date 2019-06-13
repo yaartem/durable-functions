@@ -64,7 +64,7 @@ namespace DemoConsole
             
             while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
-                if (rnd.Next(1,101)>80 && currentTime.Hour < 23)
+                if (rnd.Next(1,101)>60 && currentTime.Hour < 23)
                 {
                     orders.Enqueue(
                     new Order(TimeSpan.FromMinutes(rnd.Next(15,31)), currentTime, ordernum)

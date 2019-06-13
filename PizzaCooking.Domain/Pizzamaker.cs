@@ -27,13 +27,13 @@ namespace PizzaCooking.Domain
             {
                 if (OrdersDone > 10)
                 {
-                    if(OrdersDone > 20) ForgotToTake = rnd.Next(0, 100) == 0 ? false : true;
+                    if (OrdersDone > 20) ForgotToTake = rnd.Next(0, 25) == 0 ? false : true;
                     else
-                        ForgotToTake = rnd.Next(0, 10) == 0 ? false : true;
-                }  
+                        ForgotToTake = rnd.Next(0, 4) == 0 ? false : true;
+                }
                 else ForgotToTake = rnd.Next(0, 2) == 0 ? true : false;
 
-                if(!ForgotToTake)
+                if (!ForgotToTake)
                 {
                     if (order.State == "Is Waiting To Be Cooked")
                     {
@@ -45,7 +45,7 @@ namespace PizzaCooking.Domain
                             order.OrderTakenForCookingTime = order.CurrentTime;
                         }
                     }
-                } 
+                }
             }
             else
             {

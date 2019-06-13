@@ -87,10 +87,10 @@ namespace PizzaCooking.Domain
                 FraseSaid = CurrentTime;
                 yield return 0;
             }
-            while (CurrentTime >= FraseSaid.AddMinutes(30)) //best
+            while (CurrentTime >= FraseSaid.AddMinutes(60) && CurrentTime.Hour < 23 && currentlyInProcessing.Count!=0) //best
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                switch (rnd.Next(1, 6))
+                switch (rnd.Next(1,3))
                 {
                     case 1:
                         Console.WriteLine("{0} выполнил больше всех заказов! Можно и перерыв на кофе",
@@ -117,7 +117,7 @@ namespace PizzaCooking.Domain
                     {
                         if (item.order.Pizzas >= 3)
                         {
-                            switch (rnd.Next(1, 4))
+                            switch (rnd.Next(1,4))
                             {
                                 case 1:
                                     Console.WriteLine("Кто так много ест? Заказ№{0}! Там больше трех пицц", item.order.OrderNumber);
@@ -148,20 +148,24 @@ namespace PizzaCooking.Domain
                     }
                     else
                     {
-                        switch (rnd.Next(1, 10))
+                        if (!item.order.TakenToCook)
                         {
-                            case 1:
-                                Console.WriteLine("Господа, заказ <<{0}>> №{1} не готов! Пора бы им заняться", item.order.Content, item.order.OrderNumber);
-                                break;
-                            case 2:
-                                Console.WriteLine("<<{0}>>, заказ №{1} и пиццамейкер! Надо бы сделать", item.order.Content, item.order.OrderNumber);
-                                break;
-                            case 3:
-                                Console.WriteLine("<<{0}>>, заказ №{1}. За работу, дорогие!", item.order.Content, item.order.OrderNumber);
-                                break;
-                            default:
-                                break;
+                            switch (rnd.Next(1, 4))
+                            {
+                                case 1:
+                                    Console.WriteLine("Господа, заказ <<{0}>> №{1} не готов! Пора бы им заняться", item.order.Content, item.order.OrderNumber);
+                                     break;
+                                case 2:
+                                    Console.WriteLine("<<{0}>>, заказ №{1} и пиццамейкер! Надо бы сделать", item.order.Content, item.order.OrderNumber);
+                                    break;
+                                case 3:
+                                    Console.WriteLine("<<{0}>>, заказ №{1}. За работу, дорогие!", item.order.Content, item.order.OrderNumber);
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
+                        
                     }
 
                     Console.ForegroundColor = ConsoleColor.White;
@@ -171,18 +175,20 @@ namespace PizzaCooking.Domain
                 while (item.order.State == "Is Ready To Be Taken")
                 {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                    switch (rnd.Next(1, 5))
+                    if (!item.order.TakenToDeliver)
                     {
-                        case 1:
-                            Console.WriteLine("Травка зеленеет, солнышко блестит, заказ№{0} к курьерам летит!", item.order.OrderNumber);
-                            break;
-                        case 2:
-                            Console.WriteLine("<<{0}>> выполнен! Доставщики, ваш выход", item.order.Content);
-                            break;
-                        default:
-                            break;
+                        switch (rnd.Next(1,3))
+                        {
+                            case 1:
+                                Console.WriteLine("Травка зеленеет, солнышко блестит, заказ№{0} к курьерам летит!", item.order.OrderNumber);
+                                break;
+                            case 2:
+                                Console.WriteLine("<<{0}>> выполнен! Доставщики, ваш выход", item.order.Content);
+                                break;
+                            default:
+                                break;
+                        }
                     }
-
                     Console.ForegroundColor = ConsoleColor.White;
                     yield return 0;
                 }
@@ -204,11 +210,6 @@ namespace PizzaCooking.Domain
             manyOrdersWords.Add("Ребята, помогите! " + boss.Name + " пытается закрыть смену. Заказов многовато стало");
             nearlyEndWords.Add("Не спать! До конца смены всего час!");
             nearlyEndWords.Add("Час до конца! Последние заказы! Крепитесь!");
-        }
-
-        void ShowState()
-        {
-
         }
 
         public void BlameLaties(List<Pizzamaker> guys)
