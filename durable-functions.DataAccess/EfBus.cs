@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace durable_functions.DataAccess
 {
     public class EfBusRepository : IBusRepository
     {
-        public async ValueTask<Process> ReceiveProcessAsync(DateTime createdSince, CancellationToken cancellationToken)
+        public async ValueTask<Process> GetCurrentlyRunningProcesses(DateTime createdSince, CancellationToken cancellationToken)
         {
             using (var ctx = CreateContext())
             {
@@ -31,16 +32,17 @@ namespace durable_functions.DataAccess
         /// <summary>
         /// ReceiveNextAsync receives the next event after <paramref name="afterVersion"/> in ascending order.
         /// </summary>
-        /// <param name="processId">processId specifies the process for which the events are received.</param>
-        /// <param name="afterVersion">afterVersion specifies exclusive lower bound of the events to look for the next event.</param>
+        /// <param name="processType">Type of the process.</param>
+        /// <param name="processId">The process for which the events are received.</param>
+        /// <param name="afterVersion">Exclusive lower bound of the events to look for the next event.</param>
         /// <returns>Returns the next event after the version specified.</returns>
-        public async ValueTask<InboxEvent> ReceiveNextEventAsync(String processId, long afterVersion,
+        public async ValueTask<InboxEvent> ReceiveNextEventAsync(string processType, string processId, long afterVersion,
             CancellationToken cancellationToken)
         {
             using (var ctx = CreateContext())
             {
                 var fields = await ctx.Processes
-                    .Where(p => p.Id == processId)
+                    .Where(p => p.Type == processType && p.Id == processId)
                     .SelectMany(p => p.InboxEvents
                         .Where(e => e.Version > afterVersion))
                     .OrderBy(e => e.Version)
@@ -89,6 +91,11 @@ namespace durable_functions.DataAccess
                 process.InboxEvents.Add(eventDto);
                 await ctx.SaveChangesAsync(cancellationToken);
             }
+        }
+
+        public ValueTask<CommandMessage> ReceiveNextCommandAsync(string processId)
+        {
+            throw new NotImplementedException();
         }
 
         public async ValueTask WriteAsync(CommandMessage @event, CancellationToken cancellationToken)
