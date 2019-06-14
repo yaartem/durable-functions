@@ -37,7 +37,7 @@ namespace DemoConsole
 
             Names name;
             var groupDeliverers = new List<Deliverer>();
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= 25; i++)
             {
                 name = (Names)rnd.Next(0, 32);
                 groupDeliverers.Add(new Deliverer(i, name.ToString()));
@@ -109,7 +109,6 @@ namespace DemoConsole
                         foreach (Pizzamaker i in groupPizzamakers) i.CheckOrder(item.order); //убрать
                         foreach (Deliverer g in groupDeliverers) g.CheckOrder(item.order); //убрать
                     }
-
                     else
                     {
                         item.process.Dispose();
@@ -119,9 +118,7 @@ namespace DemoConsole
                 currentlyInProcessing.Clear();
                 currentlyInProcessing.AddRange(nextInProcessing);
             }
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("Все доставлено и сделано! Ждем следующего дня");
-            Console.ForegroundColor = ConsoleColor.White;
+            alisaProcess.MoveNext();
             Console.WriteLine($"Finished {count} synchronizations in {sw.Elapsed.TotalSeconds} sec.");
 
             Console.ReadKey();
