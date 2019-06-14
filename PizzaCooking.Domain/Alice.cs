@@ -63,41 +63,47 @@ namespace PizzaCooking.Domain
                 yield return 0;
             }
 
-            if (CurrentTime.TimeOfDay < TimeSpan.FromHours(11))
-            {
+
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("{0} {1}", CurrentTime, helloWords[rnd.Next(0, 4)]);
                 Console.ForegroundColor = ConsoleColor.White;
-            }
+                yield return 0;
+          
 
-            while (CurrentTime.TimeOfDay >= TimeSpan.FromHours(10)) //laties
-            {
+
+            
+            
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 BlameLaties(groupPizzamakers);
                 Console.ForegroundColor = ConsoleColor.White;
                 yield return 0;
-                break;
-            }
-            while (CurrentTime.Hour == 13 && CurrentTime.Minute == 0) //lunchtime
+            while (CurrentTime.TimeOfDay < TimeSpan.FromHours(13))
             {
+                yield return 0;
+            }
+
+           
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("{0} {1}", CurrentTime, halfWords[rnd.Next(0, 2)]);
                 Console.ForegroundColor = ConsoleColor.White;
                 CurrentTime = CurrentTime.AddMinutes(30);
                 FraseSaid = CurrentTime;
                 yield return 0;
-                break;
-            }
-            while (CurrentTime.Hour == 22 && CurrentTime.Minute == 0) //nearly end
+            while (CurrentTime.TimeOfDay < TimeSpan.FromHours(22))
             {
+                yield return 0;
+            }
+            
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("{0} {1}", CurrentTime, nearlyEndWords[rnd.Next(0, 2)]);
                 Console.ForegroundColor = ConsoleColor.White;
                 FraseSaid = CurrentTime;
                 yield return 0;
-            }
-            while (CurrentTime.Hour == 23 && CurrentTime.Minute == 0) //end
+            while (CurrentTime.TimeOfDay < TimeSpan.FromHours(23))
             {
+                yield return 0;
+            }
+           
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("{0}", finishWords[rnd.Next(0, 2)]);
                 Console.WriteLine("Есть люди как люди, а есть {0}! {1}!Слишком много заказов!",
@@ -125,7 +131,7 @@ namespace PizzaCooking.Domain
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.White;
                 yield return 0;
-            }
+            
             while (currentlyInProcessing.Count > 10 && CurrentTime >= FraseSaid.AddMinutes(15)) //many orders
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -216,7 +222,7 @@ namespace PizzaCooking.Domain
                     }
 
                     Console.ForegroundColor = ConsoleColor.White;
-                    yield return 0;
+                
                 }
 
                 while (item.order.State == "Is Ready To Be Taken")
