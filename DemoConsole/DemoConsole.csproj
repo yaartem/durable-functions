@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\durable-functions.Framework\durable-functions.Framework.csproj" />
     <ProjectReference Include="..\PizzaCooking.Domain\PizzaCooking.Domain.csproj" />
   </ItemGroup>
 
