@@ -56,12 +56,11 @@ namespace DemoConsole
 
             var count = 0;
 
-            Alice a = new Alice(boss);
-            DateTime FraseSaid = currentTime;
-            List<(Order order, IEnumerator<int> process)> nextInProcessing;
-
-
-            var alisaProcess = a.GetSequence(boss, currentlyInProcessing, groupPizzamakers).GetEnumerator();
+            Alice a = new Alice(boss, currentlyInProcessing, groupPizzamakers);
+            
+            List<(Order order, IEnumerator<int> process)> nextInProcessing = new List<(Order order, IEnumerator<int> process)>();
+            
+            var alisaProcess = a.GetSequence().GetEnumerator();
 
             var aliceProcessFinished = false;
             while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
@@ -74,7 +73,7 @@ namespace DemoConsole
                     ordernum++;
                 }
 
-                nextInProcessing = new List<(Order order, IEnumerator<int> process)>();
+                nextInProcessing.Clear();
 
                 Thread.Sleep(0);
                 currentTime = currentTime.AddMinutes(1);
@@ -114,7 +113,6 @@ namespace DemoConsole
                         item.process.Dispose();
                     }
                 }
-                //currentlyInProcessing = nextInProcessing;
                 currentlyInProcessing.Clear();
                 currentlyInProcessing.AddRange(nextInProcessing);
             }

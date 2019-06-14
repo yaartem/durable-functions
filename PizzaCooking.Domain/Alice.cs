@@ -5,112 +5,70 @@ namespace PizzaCooking.Domain
 {
     public class Alice
     {
-        Random rnd = new Random(); // отключить
-        public List<string> helloWords = new List<string>();
-        public List<string> halfWords = new List<string>();
-        public List<string> finishWords = new List<string>();
-        public List<string> manyOrdersWords = new List<string>();
-        public List<string> nearlyEndWords = new List<string>();
+        private List<Pizzamaker> GroupPizzamakers { get; }
+        public List<(Order order, IEnumerator<int> process)> CurrentlyInProcessing { get; }
+        Random _rnd = new Random(); // отключить
+        private static List<string> HelloWords { get; }
+        private static List<string> HalfWords { get; }
+        private static List<string> FinishWords { get; }
+        private List<string> ManyOrdersWords { get; }
+        private static  List<string> NearlyEndWords { get; }
 
         public DateTime CurrentTime { get; set; }
         public DateTime FraseSaid { get; set; }
-
-        /*
-
-                while (не наступило время 9:00) {
-
-                    // Все, что обычно
-                    WhatISayAllTHeTime();
-
-                    yield return 0; //
-                }
-                то, что один раз после 9
-
-                while (не наступило время 10)
-                {
-                    WhatISayAllTHeTime();
-
-                    yield return 0; //
-                }
-
-                // Наказать опоздавших
-                BlameLaties();
-
-
-                while (не наступило время 22)
-                {
-                    WhatISayAllTHeTime();
-
-                    yield return 0; //
-                }
-
-                while (позже 22, и до упора)
-                {
-                    WhatISayAllTHeTime();
-
-                    WhatISayJustBeforeShiftTermination();
-
-                    yield return 0; //
-                }
-
-         */
-
-        public IEnumerable<int> GetSequence(Manager boss, List<(Order order,
-            IEnumerator<int> process)> currentlyInProcessing, List<Pizzamaker> groupPizzamakers)
+        
+        public IEnumerable<int> GetSequence()
         {
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(9))
             {
                 yield return 0;
             }
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("{0} {1}", CurrentTime, helloWords[rnd.Next(0, 4)]);
-                Console.ForegroundColor = ConsoleColor.White;
+                Say($"{CurrentTime} {HelloWords[_rnd.Next(0, 4)]}");
                 yield return 0;
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(10))
             {
-                PhrasesAll(currentlyInProcessing,groupPizzamakers);
+                PhrasesAll(CurrentlyInProcessing,GroupPizzamakers);
                 yield return 0;
             }
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                BlameLaties(groupPizzamakers);
+                BlameLaties(GroupPizzamakers);
                 Console.ForegroundColor = ConsoleColor.White;
                 yield return 0;
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(13))
             {
-                PhrasesAll(currentlyInProcessing, groupPizzamakers);
+                PhrasesAll(CurrentlyInProcessing, GroupPizzamakers);
                 yield return 0;
             }
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("{0} {1}", CurrentTime, halfWords[rnd.Next(0, 2)]);
-                Console.ForegroundColor = ConsoleColor.White;
+                
+                Say(string.Format("{0} {1}", CurrentTime, HalfWords[_rnd.Next(0, 2)]));
+                
                 CurrentTime = CurrentTime.AddMinutes(30);
                 FraseSaid = CurrentTime;
                 yield return 0;
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(22))
             {
-                PhrasesAll(currentlyInProcessing, groupPizzamakers);
+                PhrasesAll(CurrentlyInProcessing, GroupPizzamakers);
                 yield return 0;
             }
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("{0} {1}", CurrentTime, nearlyEndWords[rnd.Next(0, 2)]);
-                Console.ForegroundColor = ConsoleColor.White;
+                
+                Say(string.Format("{0} {1}", CurrentTime, NearlyEndWords[_rnd.Next(0, 2)]));
                 FraseSaid = CurrentTime;
                 yield return 0;
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(23))
             {
-                PhrasesAll(currentlyInProcessing, groupPizzamakers);
+                PhrasesAll(CurrentlyInProcessing, GroupPizzamakers);
                 yield return 0;
             }
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("{0}", finishWords[rnd.Next(0, 2)]);
-                Console.WriteLine("Есть люди как люди, а есть {0}! {1}!Слишком много заказов!",
-                    groupPizzamakers[BestPizzamaker(groupPizzamakers)].Name, groupPizzamakers[BestPizzamaker(groupPizzamakers)].OrdersDone);
-                Console.WriteLine();
-                foreach (var man in groupPizzamakers)
+                
+                Say(FinishWords[_rnd.Next(0, 2)]);
+                Say(string.Format("Есть люди как люди, а есть {0}! {1}!Слишком много заказов!",
+                    GroupPizzamakers[BestPizzamaker(GroupPizzamakers)].Name, GroupPizzamakers[BestPizzamaker(GroupPizzamakers)].OrdersDone));
+                
+                foreach (var man in GroupPizzamakers)
                 {
                     if (man.OrdersDone > 20)
                     {
-                        Console.WriteLine("Большой молодец-{0}, {1} выполнено заказов", man.Name, man.OrdersDone);
+                        Say($"Большой молодец-{man.Name}, {man.OrdersDone} выполнено заказов");
                     }
                     else
                     {
@@ -128,7 +86,7 @@ namespace PizzaCooking.Domain
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.White;
                 yield return 0;
-                while (currentlyInProcessing.Count>0)
+                while (CurrentlyInProcessing.Count>0)
                 {
                     yield return 0;
                 }
@@ -138,21 +96,57 @@ namespace PizzaCooking.Domain
                 yield return 0;
         }
 
-        public Alice(Manager boss)
+        private void Say(string what)
         {
-            helloWords.Add("Здравствуйте, дорогие, какой чудесный день, чтобы побить рекорды!");
-            helloWords.Add("Привет, ребята, новый день-новые заказы!");
-            helloWords.Add("Всем привет, готовы работать? Лично я всегда готова!");
-            helloWords.Add("9:00, работа началась! Всем хорошего дня!");
-            halfWords.Add("13:00, пора подкрепиться, ребята");
-            halfWords.Add("Победа, победа, вместо обеда! Пойдеи кушать, друзья");
-            finishWords.Add("Конец Смены! Хорошая работа, ребята!");
-            finishWords.Add("Вот и пришел конец нашей работе, можно по домам!");
-            manyOrdersWords.Add("Поторопитесь, в очереди много заказов!");
-            manyOrdersWords.Add("Стало многовато заказов! Пора поднапрячься, любимые");
-            manyOrdersWords.Add("Ребята, помогите! " + boss.Name + " пытается закрыть смену. Заказов многовато стало");
-            nearlyEndWords.Add("Не спать! До конца смены всего час!");
-            nearlyEndWords.Add("Час до конца! Последние заказы! Крепитесь!");
+            var prevColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine();
+            Console.WriteLine(what);
+            Console.WriteLine();
+            Console.ForegroundColor = prevColor;
+        }
+
+        public Alice(Manager boss, List<(Order order, IEnumerator<int> process)> currentlyInProcessing,
+            List<Pizzamaker> groupPizzamakers)
+        {
+            GroupPizzamakers = groupPizzamakers;
+            CurrentlyInProcessing = currentlyInProcessing;
+
+            ManyOrdersWords = new List<string>
+            {
+                "Поторопитесь, в очереди много заказов!",
+                "Стало многовато заказов! Пора поднапрячься, любимые",
+                "Ребята, помогите! " + boss.Name + " пытается закрыть смену. Заказов многовато стало"
+            };
+        }
+
+        static Alice()
+        {
+            HelloWords = new List<string>
+            {
+                "Здравствуйте, дорогие, какой чудесный день, чтобы побить рекорды!",
+                "Привет, ребята, новый день-новые заказы!",
+                "Всем привет, готовы работать? Лично я всегда готова!",
+                "9:00, работа началась! Всем хорошего дня!"
+            };
+
+            HalfWords = new List<string>
+            {
+                "13:00, пора подкрепиться, ребята",
+                "Победа, победа, вместо обеда! Пойдем кушать, друзья"
+            };
+
+            FinishWords = new List<string>
+            {
+                "Конец Смены! Хорошая работа, ребята!",
+                "Вот и пришел конец нашей работе, можно по домам!"
+            };
+
+            NearlyEndWords = new List<string>
+            {
+                "Не спать! До конца смены всего час!",
+                "Час до конца! Последние заказы! Крепитесь!"
+            };
         }
 
         public void BlameLaties(List<Pizzamaker> guys)
@@ -190,12 +184,12 @@ namespace PizzaCooking.Domain
             return max;
         }
 
-        public void PhrasesAll(List<(Order order, IEnumerator<int> process)> CurrentlyInProcess, List<Pizzamaker> groupPizzamakers)
+        public void PhrasesAll(List<(Order order, IEnumerator<int> process)> currentlyInProcess, List<Pizzamaker> groupPizzamakers)
         {
             if (CurrentTime >= FraseSaid.AddMinutes(60))
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                switch (rnd.Next(1, 6))
+                switch (_rnd.Next(1, 6))
                 {
                     case 1:
                         Console.WriteLine("{0} выполнил больше всех заказов! Можно и перерыв на кофе",
@@ -213,15 +207,15 @@ namespace PizzaCooking.Domain
                 Console.ForegroundColor = ConsoleColor.White;
             } //Хвальба лучших
 
-            if (CurrentlyInProcess.Count > 10 && CurrentTime >= FraseSaid.AddMinutes(15))
+            if (currentlyInProcess.Count > 10 && CurrentTime >= FraseSaid.AddMinutes(15))
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("{0} {1}", CurrentTime, manyOrdersWords[rnd.Next(0, 3)]);
+                Console.WriteLine("{0} {1}", CurrentTime, ManyOrdersWords[_rnd.Next(0, 3)]);
                 Console.ForegroundColor = ConsoleColor.White;
                 FraseSaid = CurrentTime;
             } //Много заказов
 
-            foreach (var item in CurrentlyInProcess)
+            foreach (var item in currentlyInProcess)
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 if (item.order.State == "Is Waiting To Be Cooked" && !item.order.TakenToCook)
@@ -230,7 +224,7 @@ namespace PizzaCooking.Domain
                     {
                         if (item.order.Pizzas >= 3)
                         {
-                            switch (rnd.Next(1, 4))
+                            switch (_rnd.Next(1, 4))
                             {
                                 case 1:
                                     Console.WriteLine("Кто так много ест? Заказ№{0}! Там больше трех пицц",
@@ -249,7 +243,7 @@ namespace PizzaCooking.Domain
                         }
                         else
                         {
-                            switch (rnd.Next(1, 4))
+                            switch (_rnd.Next(1, 4))
                             {
                                 case 1:
                                     Console.WriteLine("Напитки в заказе! Наверное, в пустыню едет...");
@@ -266,7 +260,7 @@ namespace PizzaCooking.Domain
                     }
                     else
                     {
-                        switch (rnd.Next(1, 4))
+                        switch (_rnd.Next(1, 4))
                         {
                             case 1:
                                 Console.WriteLine("Господа, заказ <<{0}>> №{1} не готов! Пора бы им заняться",
@@ -288,7 +282,7 @@ namespace PizzaCooking.Domain
 
                 if (item.order.State == "Is Ready To Be Taken" && !item.order.TakenToDeliver)
                 {
-                    switch (rnd.Next(1, 3))
+                    switch (_rnd.Next(1, 3))
                     {
                         case 1:
                             Console.WriteLine("Травка зеленеет, солнышко блестит, заказ№{0} к курьерам летит!",
@@ -304,6 +298,8 @@ namespace PizzaCooking.Domain
                 Console.ForegroundColor = ConsoleColor.White;
             }
         }
+
+        
 
     }
 }
