@@ -6,6 +6,8 @@ using System.Threading;
 using System.Security.Cryptography;
 using System.Transactions;
 using PizzaCooking.Domain;
+using Utilities.Deterministic;
+
 
 namespace DemoConsole
 {
@@ -26,7 +28,7 @@ namespace DemoConsole
     {
         static void Main()
         {
-            Random rnd = new Random();
+            DeterministicRandom rnd = new DeterministicRandom(123);
 
             var sw = Stopwatch.StartNew();
 
@@ -47,7 +49,7 @@ namespace DemoConsole
             for (int i = 1; i <= 10; i++)
             {
                 name = (Names)rnd.Next(0, 32);
-                groupPizzamakers.Add(new Pizzamaker(i, name.ToString()));
+                groupPizzamakers.Add(new Pizzamaker(i, name.ToString(),rnd));
             }
             name = (Names)rnd.Next(0, 32);
             Manager boss = new Manager(name.ToString());
@@ -56,7 +58,7 @@ namespace DemoConsole
 
             var count = 0;
 
-            Alice a = new Alice(boss, currentlyInProcessing, groupPizzamakers);
+            Alice a = new Alice(boss, currentlyInProcessing, groupPizzamakers,rnd);
             
             List<(Order order, IEnumerator<int> process)> nextInProcessing = new List<(Order order, IEnumerator<int> process)>();
             
@@ -68,7 +70,7 @@ namespace DemoConsole
                 if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23)
                 {
                     orders.Enqueue(
-                    new Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum)
+                    new Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum,rnd)
                     );
                     ordernum++;
                 }

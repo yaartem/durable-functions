@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using Utilities.Deterministic;
 
 namespace PizzaCooking.Domain
 {
     public class Order
     {
-        Random rnd=new Random();
+        DeterministicRandom rnd;
         public struct Menu
         {
             public enum Pizza
@@ -59,8 +60,9 @@ namespace PizzaCooking.Domain
             }
         }
 
-        public Order(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber)
+        public Order(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber, DeterministicRandom rnd)
         {
+            this.rnd = rnd;
             FillwithFood();
             TimeToDeliver = timeToDeliver;
             TimeToCook = TimeSpan.FromMinutes(Pizzas*5);

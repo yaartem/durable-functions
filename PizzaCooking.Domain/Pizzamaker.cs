@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Utilities.Deterministic;
 namespace PizzaCooking.Domain
 {
     public class Pizzamaker
     {
-        Random rnd = new Random();
+        DeterministicRandom rnd;
         public int PizzamakerNum { set; get; }
         public string Name { get; }
         public int OrdersDone { set; get; }
         private bool Busy { get; set; }
         private bool ForgotToTake { set; get; }
 
-        public Pizzamaker(int pizzamakerNum, string name)
+        public Pizzamaker(int pizzamakerNum, string name,DeterministicRandom rnd)
         {
+            this.rnd = rnd;
             Name = name;
             PizzamakerNum = pizzamakerNum;
             Busy = false;

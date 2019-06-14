@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Utilities.Deterministic;
 
 namespace PizzaCooking.Domain
 {
@@ -7,7 +8,7 @@ namespace PizzaCooking.Domain
     {
         private List<Pizzamaker> GroupPizzamakers { get; }
         public List<(Order order, IEnumerator<int> process)> CurrentlyInProcessing { get; }
-        Random _rnd = new Random(); // отключить
+        DeterministicRandom _rnd; 
         private static List<string> HelloWords { get; }
         private static List<string> HalfWords { get; }
         private static List<string> FinishWords { get; }
@@ -89,8 +90,9 @@ namespace PizzaCooking.Domain
         }
 
         public Alice(Manager boss, List<(Order order, IEnumerator<int> process)> currentlyInProcessing,
-            List<Pizzamaker> groupPizzamakers)
+            List<Pizzamaker> groupPizzamakers,DeterministicRandom rnd)
         {
+            _rnd = rnd;
             GroupPizzamakers = groupPizzamakers;
             CurrentlyInProcessing = currentlyInProcessing;
 
