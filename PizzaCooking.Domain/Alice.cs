@@ -174,9 +174,9 @@ namespace PizzaCooking.Domain
             {
                 if (item.order.State == "Is Waiting To Be Cooked" && !item.order.TakenToCook)
                 {
-                    if (item.order.Pizzas >= 3 || item.order.AnyDrinks)
+                    if (item.order.PizzaCount >= 3 || item.order.AnyDrinks)
                     {
-                        if (item.order.Pizzas >= 3)
+                        if (item.order.PizzaCount >= 3)
                         {
                             switch (_rnd.Next(1, 4))
                             {

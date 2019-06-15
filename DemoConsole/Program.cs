@@ -16,11 +16,11 @@ namespace DemoConsole
             {
                 while (iter.MoveNext())
                 {
-                    if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23) 
+                    if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23) // external
                     {
-                        n1.TakeOrder(new PizzaCooking.Domain.Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum, rnd));
+                        n1.TakeOrder( PizzaCooking.Domain.Order.CreateSample(
+                            TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum, rnd));
                         ordernum++;
-                        
                     }
                     currentTime = currentTime.AddMinutes(1);
                     n1.CurrentTime = currentTime;
