@@ -1,14 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Net.Mime;
+using System.Linq;
 using Utilities.Deterministic;
 
 namespace PizzaCooking.Domain
 {
     public class Order
     {
-        DeterministicRandom rnd;
+        public TimeSpan TimeToDeliver{get;}
+        public TimeSpan TimeToCook => TimeSpan.FromMinutes(_pizzas.Count*5);
+        public DateTime OrderRecievedTime { get; }
+        public DateTime OrderTakenForCookingTime { set; get; }
+        public int OrderNumber { get; }
+        public DateTime CurrentTime { get; set; }
+        public string State { get; set; }
+        public DateTime TimeTaken {get; set;}
+        
+        private readonly List<Menu.Pizza> _pizzas;
+
+        private readonly List<Menu.Meal> _meals;
+
+        private readonly List<Menu.Drinks> _drinks;
+        
+        public bool AnyDrinks => _drinks.Count > 0;
+        
+        public int PizzaCount => _pizzas.Count;
+
+        private string _content;
+
+        public string Content => _content ?? (_content =
+            string.Join(",",
+                _pizzas.Select(p => p.ToString())
+                    .Concat(_meals.Select(m => m.ToString()))
+                    .Concat(_drinks.Select(d => d.ToString()))
+            ));
+        
         public struct Menu
         {
             public enum Pizza
@@ -60,54 +86,50 @@ namespace PizzaCooking.Domain
             }
         }
 
-        public Order(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber, DeterministicRandom rnd)
+        protected Order(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber,
+            List<Menu.Meal> meals, List<Menu.Pizza> pizzas, List<Menu.Drinks> drinks)
         {
-            this.rnd = rnd;
-            FillwithFood();
             TimeToDeliver = timeToDeliver;
-            TimeToCook = TimeSpan.FromMinutes(Pizzas*5);
             OrderRecievedTime = orderRecievedTime;
             OrderNumber = orderNumber;
-            AnyDrinks = false;
-            
+            _meals = meals;
+            _pizzas = pizzas;
+            _drinks = drinks;
         }
-
-        public TimeSpan TimeToDeliver{get;}
-        public TimeSpan TimeToCook { get; }
-        public DateTime OrderRecievedTime { get; }
-        public DateTime OrderTakenForCookingTime { set; get; }
-        public int OrderNumber { get; }
-        public DateTime CurrentTime { get; set; }
-        public string State { get; set; }
-        public DateTime TimeTaken {get; set;}
-        public string Content { set; get; }
-        public int Pizzas { set; get; }
-        public bool AnyDrinks { set; get; }
 
         public void ShowState()
         {
             Console.WriteLine("Order number {0} {1} ", OrderNumber, State);
         }
 
-        public void FillwithFood()
+        public static (List<Menu.Meal>, List<Menu.Pizza>, List<Menu.Drinks>)
+            GetSampleFood(DeterministicRandom random)
         {
-            Pizzas = 1;
-            Content = ((Menu.Pizza)rnd.Next(0, 8)).ToString();
-            while (rnd.Next(0,3) == 0)
+            var pizzas = new List<Menu.Pizza>();
+            var drinks = new List<Menu.Drinks>();
+            var meals = new List<Menu.Meal>();
+            pizzas.Add((Menu.Pizza) random.Next(0, 8));
+            while (random.Next(0,3) == 0)
             {
-                switch (rnd.Next(1, 8))
+                switch (random.Next(0, 3))
                 {
-                    case 1: Content = Content + ", " + ((Menu.Pizza)rnd.Next(0,8)).ToString();
-                        Pizzas++;
+                    case 0: pizzas.Add((Menu.Pizza)random.Next(0,8));
                         break;
-                    case 2: Content = Content + ", "  + ((Menu.Meal)rnd.Next(0, 4)).ToString();
+                    case 1: meals.Add((Menu.Meal)random.Next(0, 4));
                         break;
-                    case 3: Content = Content + ", " + ((Menu.Drinks)rnd.Next(0, 6)).ToString();
-                        AnyDrinks = true;
+                    case 2: drinks.Add((Menu.Drinks)random.Next(0, 6));
                         break;
-                    default: break;
                 }
             }
+
+            return (meals, pizzas, drinks);
+        }
+
+        public static Order CreateSample(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber, DeterministicRandom random)
+        {
+            var (meals, pizzas, drinks) = GetSampleFood(random);
+            var order = new Order(timeToDeliver, orderRecievedTime, orderNumber, meals, pizzas, drinks);
+            return order;
         }
     }
 }
