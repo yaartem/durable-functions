@@ -13,10 +13,17 @@ namespace DemoConsole
 {
     class Program
     {
-        static void Main()
+        static void Main(string [] args)
         {
             Pizzeria n1= new Pizzeria();
-            n1.Work();
+            using (var iter = n1.Work())
+            {
+                while (iter.MoveNext())
+                {
+                }
+            }
+
+            Console.WriteLine("Press any key to continue");
             Console.ReadKey();
         }
     }

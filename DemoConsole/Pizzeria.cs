@@ -50,11 +50,12 @@ namespace DemoConsole
             aliceProcessFinished = false;
         }
 
-        public void Work()
+        public IEnumerator<int> Work()
         {
             while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
-                if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23)
+                yield return 0;
+                if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23) // external
                 {
                     orders.Enqueue(
                     new Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum, rnd)
@@ -63,9 +64,7 @@ namespace DemoConsole
                 }
 
                 nextInProcessing.Clear();
-
-                Thread.Sleep(0);
-                currentTime = currentTime.AddMinutes(1);
+                currentTime = currentTime.AddMinutes(1); // External
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Current Time: {0}", currentTime);
                 Console.ForegroundColor = ConsoleColor.White;
@@ -93,8 +92,8 @@ namespace DemoConsole
                     if (item.process.MoveNext())
                     {
                         nextInProcessing.Add(item);
-                        foreach (Pizzamaker i in groupPizzamakers) i.CheckOrder(item.order); //убрать
-                        foreach (Deliverer g in groupDeliverers) g.CheckOrder(item.order); //убрать
+                        foreach (Pizzamaker i in groupPizzamakers) i.CheckOrder(item.order);
+                        foreach (Deliverer g in groupDeliverers) g.CheckOrder(item.order);
                     }
                     else
                     {
