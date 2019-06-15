@@ -16,7 +16,7 @@ namespace DemoConsole
         DeterministicRandom rnd = new DeterministicRandom(123);
         public DateTime CurrentTime { get; set; }
         Queue<Order> orders = new Queue<Order>();
-        int ordernum = 0;
+        
         List<Deliverer> groupDeliverers = new List<Deliverer>();
         List<Pizzamaker> groupPizzamakers = new List<Pizzamaker>();
         Names name;
@@ -49,20 +49,20 @@ namespace DemoConsole
 
             aliceProcessFinished = false;
         }
-        
+        public void TakeOrder(Order o)
+        {
+
+            orders.Enqueue(o); 
+                     
+            
+        }
         public IEnumerator<int> Work()
         {
             while (CurrentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
                 yield return 0;
-                if (rnd.Next(1, 101) > 60 && CurrentTime.Hour < 23) // external
-                {
-                    orders.Enqueue(
-                    new Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), CurrentTime, ordernum, rnd)
-                    );
-                       ordernum++;
-                }
-
+                
+            
                 nextInProcessing.Clear();
  
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
