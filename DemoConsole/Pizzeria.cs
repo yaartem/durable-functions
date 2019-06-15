@@ -13,7 +13,12 @@ namespace DemoConsole
 {
     class Pizzeria
     {
-        DeterministicRandom rnd = new DeterministicRandom(123);
+        /// <summary>
+        /// _rnd это генератор случайных чисел для имитации неоднозначного поведения.
+        /// В данном исследовании генератор случайных чисел заменяет неоднозначность
+        /// поведения реальных людей, например - сотрудников пиццерии.
+        /// </summary>
+        readonly DeterministicRandom _rnd;
         public DateTime CurrentTime { get; set; }
         Queue<Order> orders = new Queue<Order>();
         
@@ -28,22 +33,23 @@ namespace DemoConsole
         private bool aliceProcessFinished;
 
         public Pizzeria()
-        { 
+        {
+            _rnd = new DeterministicRandom(123);
             for (int i = 1; i <= 25; i++)
             {
-                name = (Names)rnd.Next(0, 32);
+                name = (Names)_rnd.Next(0, 32);
                 groupDeliverers.Add(new Deliverer(i, name.ToString()));
             }
 
             for (int i = 1; i <= 10; i++)
             {
-                name = (Names)rnd.Next(0, 32);
-                groupPizzamakers.Add(new Pizzamaker(i, name.ToString(), rnd));
+                name = (Names)_rnd.Next(0, 32);
+                groupPizzamakers.Add(new Pizzamaker(i, name.ToString(), _rnd));
             }
-            name = (Names)rnd.Next(0, 32);
+            name = (Names)_rnd.Next(0, 32);
             boss = new Manager(name.ToString());
 
-            a = new Alice(boss, currentlyInProcessing, groupPizzamakers, rnd);
+            a = new Alice(boss, currentlyInProcessing, groupPizzamakers, _rnd);
 
             alisaProcess = a.GetSequence().GetEnumerator();
 

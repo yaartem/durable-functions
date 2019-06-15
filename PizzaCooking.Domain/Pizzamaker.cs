@@ -6,7 +6,7 @@ namespace PizzaCooking.Domain
 {
     public class Pizzamaker
     {
-        DeterministicRandom rnd;
+        readonly DeterministicRandom rnd;
         public int PizzamakerNum { set; get; }
         public string Name { get; }
         public int OrdersDone { set; get; }
@@ -28,11 +28,11 @@ namespace PizzaCooking.Domain
             {
                 if (OrdersDone > 10)
                 {
-                    if (OrdersDone > 20) ForgotToTake = rnd.Next(0, 25) == 0 ? false : true;
+                    if (OrdersDone > 20) ForgotToTake = rnd.Next(0, 25) != 0;
                     else
-                        ForgotToTake = rnd.Next(0, 4) == 0 ? false : true;
+                        ForgotToTake = rnd.Next(0, 4) != 0;
                 }
-                else ForgotToTake = rnd.Next(0, 2) == 0 ? true : false;
+                else ForgotToTake = rnd.Next(0, 2) == 0;
 
                 if (!ForgotToTake)
                 {
@@ -50,21 +50,10 @@ namespace PizzaCooking.Domain
             }
             else
             {
-                if (order.CurrentTime == order.OrderTakenForCookingTime + order.TimeToCook)
-                {
-                    Busy = false;
-                    OrdersDone++;
-                }
+                if (order.CurrentTime != order.OrderTakenForCookingTime + order.TimeToCook) return;
+                Busy = false;
+                OrdersDone++;
             }
-        }
-
-        public bool IsLate()
-        {
-            if (rnd.Next(1, 101) > 80)
-            {
-                return true;
-            }
-            else return false;
         }
     }
 }
