@@ -14,7 +14,7 @@ namespace DemoConsole
     class Pizzeria
     {
         DeterministicRandom rnd = new DeterministicRandom(123);
-        DateTime currentTime = new DateTime(2019, 3, 27, 8, 59, 0);
+        public DateTime CurrentTime { get; set; }
         Queue<Order> orders = new Queue<Order>();
         int ordernum = 0;
         List<Deliverer> groupDeliverers = new List<Deliverer>();
@@ -28,7 +28,7 @@ namespace DemoConsole
         private bool aliceProcessFinished;
 
         public Pizzeria()
-        {
+        { 
             for (int i = 1; i <= 25; i++)
             {
                 name = (Names)rnd.Next(0, 32);
@@ -49,26 +49,26 @@ namespace DemoConsole
 
             aliceProcessFinished = false;
         }
-
+        
         public IEnumerator<int> Work()
         {
-            while (currentTime.Hour < 23 || currentlyInProcessing.Count > 0)
+            while (CurrentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
                 yield return 0;
-                if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23) // external
+                if (rnd.Next(1, 101) > 60 && CurrentTime.Hour < 23) // external
                 {
                     orders.Enqueue(
-                    new Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum, rnd)
+                    new Order(TimeSpan.FromMinutes(rnd.Next(15, 31)), CurrentTime, ordernum, rnd)
                     );
-                    ordernum++;
+                       ordernum++;
                 }
 
                 nextInProcessing.Clear();
-                currentTime = currentTime.AddMinutes(1); // External
+ 
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine("Current Time: {0}", currentTime);
+                Console.WriteLine("Current Time: {0}", CurrentTime);
                 Console.ForegroundColor = ConsoleColor.White;
-                a.CurrentTime = currentTime;
+                a.CurrentTime = CurrentTime;
 
                 if (!aliceProcessFinished)
                 {
@@ -79,7 +79,7 @@ namespace DemoConsole
                 if (orders.Count > 0)
                 {
                     var order = orders.Peek();
-                    if (order.OrderRecievedTime <= currentTime)
+                    if (order.OrderRecievedTime <= CurrentTime)
                     {
                         currentlyInProcessing.Add((order, order.GetSequence().GetEnumerator()));
                         orders.Dequeue();
@@ -88,7 +88,7 @@ namespace DemoConsole
 
                 foreach (var item in currentlyInProcessing)
                 {
-                    item.order.CurrentTime = currentTime;
+                    item.order.CurrentTime = CurrentTime;
                     if (item.process.MoveNext())
                     {
                         nextInProcessing.Add(item);
