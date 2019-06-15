@@ -71,7 +71,7 @@ namespace PizzaCooking.Domain
             AnyDrinks = false;
             
         }
-
+     
         public TimeSpan TimeToDeliver{get;}
         public TimeSpan TimeToCook { get; }
         public DateTime OrderRecievedTime { get; }
@@ -83,7 +83,7 @@ namespace PizzaCooking.Domain
         public string Content { set; get; }
         public int Pizzas { set; get; }
         public bool AnyDrinks { set; get; }
-
+        public IList<string> PizzasList { get; private set; }
         public void ShowState()
         {
             Console.WriteLine("Order number {0} {1} ", OrderNumber, State);
