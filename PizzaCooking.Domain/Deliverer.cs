@@ -1,11 +1,15 @@
 ﻿using System;
+using durable_functions.Framework;
 
 namespace PizzaCooking.Domain
 {
     public class Deliverer
     {
-        public Deliverer(int delivererNum, string name)
+        private readonly ILogger _logger;
+
+        public Deliverer(int delivererNum, string name, ILogger logger)
         {
+            _logger = logger;
             Name = name;
             DelivererNum = delivererNum;
             Busy = false;
@@ -24,8 +28,7 @@ namespace PizzaCooking.Domain
                 {
                     if (!order.TakenToDeliver)
                     {
-                        Console.WriteLine("Deliverer number {0} Took Order number{1} ", DelivererNum,
-                            order.OrderNumber);
+                        _logger.Log($"Deliverer number {DelivererNum} Took Order number{order.OrderNumber}");
                         order.TakenToDeliver = true;
                         Busy = true;
                         order.TimeTaken = order.CurrentTime;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using durable_functions.Framework;
 using Utilities.Deterministic;
 
 namespace PizzaCooking.Domain
@@ -8,7 +9,8 @@ namespace PizzaCooking.Domain
     {
         private List<Pizzamaker> GroupPizzamakers { get; }
         public List<(Order order, IEnumerator<int> process)> CurrentlyInProcessing { get; }
-        DeterministicRandom _rnd; 
+        DeterministicRandom _rnd;
+        private readonly ILogger _logger;
         private static List<string> HelloWords { get; }
         private static List<string> HalfWords { get; }
         private static List<string> FinishWords { get; }
@@ -81,18 +83,14 @@ namespace PizzaCooking.Domain
 
         private void Say(string what)
         {
-            var prevColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine();
-            Console.WriteLine(what);
-            Console.WriteLine();
-            Console.ForegroundColor = prevColor;
+            _logger.Log(what);
         }
 
         public Alice(Manager boss, List<(Order order, IEnumerator<int> process)> currentlyInProcessing,
-            List<Pizzamaker> groupPizzamakers,DeterministicRandom rnd)
+            List<Pizzamaker> groupPizzamakers,DeterministicRandom rnd, ILogger logger)
         {
             _rnd = rnd;
+            _logger = logger;
             GroupPizzamakers = groupPizzamakers;
             CurrentlyInProcessing = currentlyInProcessing;
 
@@ -239,7 +237,7 @@ namespace PizzaCooking.Domain
                         default:
                             break;
                     }
-                }Console.ForegroundColor = ConsoleColor.White;
+                };
             }
         }
     }

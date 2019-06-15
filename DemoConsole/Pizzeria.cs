@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Security.Cryptography;
 using System.Transactions;
+using durable_functions.Framework;
 using PizzaCooking.Domain;
 using Utilities.Deterministic;
 
@@ -13,10 +14,13 @@ namespace DemoConsole
 {
     class Pizzeria
     {
+        private readonly ILogger _logger;
+
         /// <summary>
         /// _rnd это генератор случайных чисел для имитации неоднозначного поведения.
         /// В данном исследовании генератор случайных чисел заменяет неоднозначность
         /// поведения реальных людей, например - сотрудников пиццерии.
+        /// Также, случайным образом для теста задаются параметры, внутренние для пиццерии.
         /// </summary>
         readonly DeterministicRandom _rnd;
         public DateTime CurrentTime { get; set; }
@@ -32,24 +36,28 @@ namespace DemoConsole
         private IEnumerator<int> alisaProcess;
         private bool aliceProcessFinished;
 
-        public Pizzeria()
+        /// <summary>
+        /// TODO: вынести тестовую логику в класс TestPizzeria. Вся конфигурация получается извне через параметры конструктора.
+        /// </summary>
+        public Pizzeria(ILogger logger)
         {
+            _logger = logger;
             _rnd = new DeterministicRandom(123);
             for (int i = 1; i <= 25; i++)
             {
                 name = (Names)_rnd.Next(0, 32);
-                groupDeliverers.Add(new Deliverer(i, name.ToString()));
+                groupDeliverers.Add(new Deliverer(i, name.ToString(), logger));
             }
 
             for (int i = 1; i <= 10; i++)
             {
                 name = (Names)_rnd.Next(0, 32);
-                groupPizzamakers.Add(new Pizzamaker(i, name.ToString(), _rnd));
+                groupPizzamakers.Add(new Pizzamaker(i, name.ToString(), _rnd, logger));
             }
             name = (Names)_rnd.Next(0, 32);
             boss = new Manager(name.ToString());
 
-            a = new Alice(boss, currentlyInProcessing, groupPizzamakers, _rnd);
+            a = new Alice(boss, currentlyInProcessing, groupPizzamakers, _rnd, logger);
 
             alisaProcess = a.GetSequence().GetEnumerator();
 
@@ -67,13 +75,10 @@ namespace DemoConsole
             while (CurrentTime.Hour < 23 || currentlyInProcessing.Count > 0)
             {
                 yield return 0;
-                
-            
+
                 nextInProcessing.Clear();
  
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine("Current Time: {0}", CurrentTime);
-                Console.ForegroundColor = ConsoleColor.White;
+                Log($"Current Time: {CurrentTime}");
                 a.CurrentTime = CurrentTime;
 
                 if (!aliceProcessFinished)
@@ -111,6 +116,10 @@ namespace DemoConsole
             }
             alisaProcess.MoveNext();
         }
-        
+
+        void Log(string what)
+        {
+            _logger.Log(what);
+        }
     }
 }

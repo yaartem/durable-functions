@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Utilities.Deterministic;
+using durable_functions.Framework;
 
 namespace PizzaCooking.Domain
 {
@@ -21,7 +21,8 @@ namespace PizzaCooking.Domain
         private readonly List<Menu.Meal> _meals;
 
         private readonly List<Menu.Drinks> _drinks;
-        
+        private readonly ILogger _logger;
+
         public bool AnyDrinks => _drinks.Count > 0;
         
         public int PizzaCount => _pizzas.Count;
@@ -87,7 +88,7 @@ namespace PizzaCooking.Domain
         }
 
         public Order(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber,
-            List<Menu.Meal> meals, List<Menu.Pizza> pizzas, List<Menu.Drinks> drinks)
+            List<Menu.Meal> meals, List<Menu.Pizza> pizzas, List<Menu.Drinks> drinks, ILogger logger)
         {
             TimeToDeliver = timeToDeliver;
             OrderRecievedTime = orderRecievedTime;
@@ -95,11 +96,12 @@ namespace PizzaCooking.Domain
             _meals = meals;
             _pizzas = pizzas;
             _drinks = drinks;
+            _logger = logger;
         }
 
         public void ShowState()
         {
-            Console.WriteLine("Order number {0} {1} ", OrderNumber, State);
+            _logger.Log($"Order number {OrderNumber} {State} ");
         }
 
     }

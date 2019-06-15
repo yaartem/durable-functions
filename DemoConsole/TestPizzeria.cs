@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using durable_functions.Framework;
 using PizzaCooking.Domain;
 using Utilities.Deterministic;
 
@@ -31,10 +32,11 @@ namespace DemoConsole
             return (meals, pizzas, drinks);
         }
 
-        public static Order CreateSampleOrder(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber, DeterministicRandom random)
+        public static Order CreateSampleOrder(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber,
+            DeterministicRandom random, ILogger logger)
         {
             var (meals, pizzas, drinks) = GetSampleFood(random);
-            var order = new Order(timeToDeliver, orderRecievedTime, orderNumber, meals, pizzas, drinks);
+            var order = new Order(timeToDeliver, orderRecievedTime, orderNumber, meals, pizzas, drinks, logger);
             return order;
         }
     }
