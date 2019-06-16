@@ -8,8 +8,7 @@ namespace DemoConsole
 {
     public static class TestPizzeria
     {
-        
-        public static (List<Order.Menu.Meal>, List<Order.Menu.Pizza>, List<Order.Menu.Drinks>)
+        private static (List<Order.Menu.Meal>, List<Order.Menu.Pizza>, List<Order.Menu.Drinks>)
             GetSampleFood(DeterministicRandom random)
         {
             var pizzas = new List<Order.Menu.Pizza>();
@@ -32,12 +31,58 @@ namespace DemoConsole
             return (meals, pizzas, drinks);
         }
 
-        public static Order CreateSampleOrder(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber,
-            DeterministicRandom random, ILogger logger)
+        private static OrderEvent CreateSampleOrder(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber,
+            DeterministicRandom random)
         {
             var (meals, pizzas, drinks) = GetSampleFood(random);
-            var order = new Order(timeToDeliver, orderRecievedTime, orderNumber, meals, pizzas, drinks, logger);
+            var order = new OrderEvent(timeToDeliver, orderRecievedTime, orderNumber, meals, pizzas, drinks);
             return order;
+        }
+
+        public static List<OrderEvent> GenerateSampleOrders(DateTime date, DeterministicRandom random, ILogger logger)
+        {
+            var orderList = new List<OrderEvent>();
+
+            var startTime = date.Date.AddHours(9);
+
+            var endTime = date.Date.AddHours(23);
+
+            var currentTime = startTime;
+
+            var ordernum = 0;
+            while (currentTime < endTime)
+            {
+                if (random.Next(1, 101) > 60 && currentTime.Hour < 23)
+                {
+                    orderList.Add(CreateSampleOrder(
+                        TimeSpan.FromMinutes(random.Next(15, 31)), currentTime, ordernum, random));
+                    ordernum++;
+                }
+
+                currentTime = currentTime.AddMinutes(1);
+            }
+
+            return orderList;
+        }
+    }
+
+    public class OrderEvent
+    {
+        public TimeSpan TimeToDeliver { get; }
+        public DateTime OrderRecievedTime { get; }
+        public int OrderNumber { get; }
+        public IEnumerable<Order.Menu.Meal> Meals { get; }
+        public IEnumerable<Order.Menu.Pizza> Pizzas { get; }
+        public IEnumerable<Order.Menu.Drinks> Drinks { get; }
+
+        public OrderEvent(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber, List<Order.Menu.Meal> meals, List<Order.Menu.Pizza> pizzas, List<Order.Menu.Drinks> drinks)
+        {
+            TimeToDeliver = timeToDeliver;
+            OrderRecievedTime = orderRecievedTime;
+            OrderNumber = orderNumber;
+            Meals = meals;
+            Pizzas = pizzas;
+            Drinks = drinks;
         }
     }
 }

@@ -200,7 +200,7 @@ namespace PizzaCooking.Domain
                                    Say($"Заказ№{item.order.OrderNumber} с напитками, не забудьте");
                                     break;
                                 default:
-                                    Say($"Стоит отметить, что заказ№{item.order.Content} <<{item.order.OrderNumber}>> имеет напитки");
+                                    Say($"Стоит отметить, что заказ № {item.order.OrderNumber} <<{item.order.Content}>> имеет напитки");
                                     break;
                             }
                         }

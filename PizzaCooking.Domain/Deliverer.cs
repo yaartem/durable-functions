@@ -20,7 +20,7 @@ namespace PizzaCooking.Domain
         public TimeSpan TimeToDeliver { get; set; }
         public DateTime TookOrderTime { get; set; }
 
-        public void CheckOrder(Order order)
+        public bool CheckOrder(Order order)
         {
             if (!Busy)
             {
@@ -29,19 +29,27 @@ namespace PizzaCooking.Domain
                     if (!order.TakenToDeliver)
                     {
                         _logger.Log($"Deliverer number {DelivererNum} Took Order number{order.OrderNumber}");
+
                         order.TakenToDeliver = true;
                         Busy = true;
                         order.TimeTaken = order.CurrentTime;
                         TookOrderTime = order.CurrentTime;
                         TimeToDeliver = order.TimeToDeliver;
+                        return true;
                     }
                 }
             }
             else
             {
                 if (order.CurrentTime == TookOrderTime + TimeToDeliver + TimeToDeliver)
+                {
                     Busy = false;
-            } 
+                    _logger.Log($"Deliverer number {DelivererNum} becomes free.");
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

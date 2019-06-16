@@ -25,7 +25,7 @@ namespace PizzaCooking.Domain
             OrdersDone=0;
         }
 
-        public void CheckOrder(Order order)
+        public bool CheckOrder(Order order)
         {
             if (!Busy)
             {
@@ -36,7 +36,7 @@ namespace PizzaCooking.Domain
                         ForgotToTake = rnd.Next(0, 4) != 0;
                 }
                 else ForgotToTake = rnd.Next(0, 2) == 0;
-
+                
                 if (!ForgotToTake)
                 {
                     if (order.State == "Is Waiting To Be Cooked")
@@ -47,16 +47,21 @@ namespace PizzaCooking.Domain
                             order.TakenToCook = true;
                             Busy = true;
                             order.OrderTakenForCookingTime = order.CurrentTime;
+                            return true;
                         }
                     }
                 }
             }
             else
             {
-                if (order.CurrentTime != order.OrderTakenForCookingTime + order.TimeToCook) return;
+                if (order.CurrentTime != order.OrderTakenForCookingTime + order.TimeToCook) return false;
                 Busy = false;
                 OrdersDone++;
+                _logger.Log($"Pizzamaker number {PizzamakerNum} is free.");
+                return true;
             }
+
+            return false;
         }
     }
 }

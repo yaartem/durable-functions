@@ -1,51 +1,47 @@
 ﻿using System;
+using System.Linq;
 using durable_functions.Framework;
+using PizzaCooking.Domain;
 using Utilities.Deterministic;
 
 namespace DemoConsole
 {
     internal class Program
     {
-        /// <summary>
-        ///     TODO:
-        ///     1. Вывод параметров, с какого шага по какой логируем
-        ///     2. На заданный номер
-        ///     3. Вверх-вниз
-        ///     q - выход
-        /// </summary>
-        /// <param name="args"></param>
         private static void Main(string[] args)
         {
+            var logger = new SampleLogger();
+            var random = new DeterministicRandom(123);
+            var sampleDate = new DateTime(2019, 3, 27, 9, 0, 0);
+            var sampleOrders = TestPizzeria.GenerateSampleOrders(sampleDate, random, logger);
+            
             var logsBegin = 0;
-            const int logsLen = 10;
+            const int logsLen = 5;
             var key = ConsoleKey.UpArrow;
             while (key != ConsoleKey.Q)
             {
                 Console.Clear();
-                if (key == ConsoleKey.DownArrow) logsBegin += 1;
-                if (key == ConsoleKey.UpArrow) logsBegin -= 1;
+                if (key == ConsoleKey.DownArrow) logsBegin += logsLen;
+                if (key == ConsoleKey.UpArrow) logsBegin -= logsLen;
                 if (logsBegin < 0)
                 {
                     logsBegin = 0;
                 }
                 var prevColor = Console.BackgroundColor;
                 Console.BackgroundColor = ConsoleColor.DarkCyan;
-                Console.WriteLine($"Показываются шаги с {logsBegin} по {logsBegin+logsLen}.");
+                Console.WriteLine($"Показываются шаги с {logsBegin} по {logsBegin+logsLen - 1}.");
                 Console.BackgroundColor = prevColor;
 
-                var logger = new SampleLogger();
-                var iLogger = (ILogger) logger;
-                
-                var currentTime = new DateTime(2019, 3, 27, 8, 59, 0);
+                var currentTime = sampleDate;
                 var pizzeria = new Pizzeria(logger);
                 pizzeria.CurrentTime = currentTime;
                 var ordernum = 0;
-                var rnd = new DeterministicRandom(123);
 
                 Console.WriteLine();
 
                 var stepCount = 0;
-
+                var nextOrderIndex = 0;
+                
                 using (var iter = pizzeria.Work())
                 {
                     bool ShowLogs()
@@ -54,27 +50,42 @@ namespace DemoConsole
                     }
 
                     logger.SetLogginEnabled(ShowLogs());
+                    
                     while (iter.MoveNext())
                     {
-                        logger.SetLogginEnabled(ShowLogs());
-                        if (rnd.Next(1, 101) > 60 && currentTime.Hour < 23)
+                        while (
+                            nextOrderIndex < sampleOrders.Count
+                            && sampleOrders[nextOrderIndex].OrderRecievedTime <= currentTime)
                         {
-                            pizzeria.TakeOrder(TestPizzeria.CreateSampleOrder(
-                                TimeSpan.FromMinutes(rnd.Next(15, 31)), currentTime, ordernum, rnd, iLogger));
-                            ordernum++;
+                            pizzeria.TakeOrder(CreateOrder(sampleOrders[nextOrderIndex], logger));
+                            nextOrderIndex++;
                         }
-
-                        currentTime = currentTime.AddMinutes(1);
                         pizzeria.CurrentTime = currentTime;
+                        
+                        logger.LogColored($"Step: {stepCount} Current Time: {currentTime}", ConsoleColor.Green);
+                        
                         stepCount++;
+                        currentTime = currentTime.AddMinutes(1);
+                        
+                        logger.SetLogginEnabled(ShowLogs());
                     }
                 }
 
+                Console.WriteLine("Press any key to continue");
                 key = Console.ReadKey().Key;
             }
+        }
 
-            Console.WriteLine("Press any key to continue");
-            //Console.ReadKey();
+        private static Order CreateOrder(OrderEvent e, ILogger logger)
+        {
+            return new Order(
+                e.TimeToDeliver,
+                e.OrderRecievedTime,
+                e.OrderNumber,
+                e.Meals.ToList(),
+                e.Pizzas.ToList(),
+                e.Drinks.ToList(), 
+                logger);
         }
     }
 

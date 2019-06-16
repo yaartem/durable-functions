@@ -78,6 +78,7 @@ namespace PizzaCooking.Domain
                 State = "Is Waiting To Be Cooked";
                 yield return 0;
             }
+            
             while (CurrentTime < OrderTakenForCookingTime + TimeToCook)
             {
                 State = "Is Cooking";
