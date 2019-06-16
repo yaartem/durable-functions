@@ -21,21 +21,20 @@ namespace DemoConsole
             while (key != ConsoleKey.Q)
             {
                 Console.Clear();
-                if (key == ConsoleKey.DownArrow) logsBegin += logsLen;
-                if (key == ConsoleKey.UpArrow) logsBegin -= logsLen;
+                if (key == ConsoleKey.DownArrow) logsBegin += 1;
+                if (key == ConsoleKey.UpArrow) logsBegin -= 1;
                 if (logsBegin < 0)
                 {
                     logsBegin = 0;
                 }
                 var prevColor = Console.BackgroundColor;
                 Console.BackgroundColor = ConsoleColor.DarkCyan;
-                Console.WriteLine($"Показываются шаги с {logsBegin} по {logsBegin+logsLen - 1}.");
+                Console.WriteLine($"Показываются шаги с {logsBegin} по {logsBegin+logsLen - 1}. ↑-На один шаг назад, ↓-один шаг вперед");
                 Console.BackgroundColor = prevColor;
 
                 var currentTime = sampleDate;
                 var pizzeria = new Pizzeria(logger);
                 pizzeria.CurrentTime = currentTime;
-                var ordernum = 0;
 
                 Console.WriteLine();
 

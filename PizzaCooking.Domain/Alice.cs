@@ -27,15 +27,14 @@ namespace PizzaCooking.Domain
                 yield return 0;
             }
 
-            Say($"{CurrentTime} {HelloWords[_rnd.Next(0, 4)]}");
+            Say($" {HelloWords[_rnd.Next(0, 4)]}");
             yield return 0;
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(13))
             {
                 PhrasesAll(CurrentlyInProcessing, GroupPizzamakers);
                 yield return 0;
             }
-            Say(string.Format("{0} {1}", CurrentTime, HalfWords[_rnd.Next(0, 2)]));
-            CurrentTime = CurrentTime.AddMinutes(30);
+            Say( HalfWords[_rnd.Next(0, 2)]);
             FraseSaid = CurrentTime;
             yield return 0;
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(22))
@@ -43,7 +42,7 @@ namespace PizzaCooking.Domain
                 PhrasesAll(CurrentlyInProcessing, GroupPizzamakers);
                 yield return 0;
             }
-            Say(string.Format("{0} {1}", CurrentTime, NearlyEndWords[_rnd.Next(0, 2)]));
+            Say(NearlyEndWords[_rnd.Next(0, 2)]);
             FraseSaid = CurrentTime;
             yield return 0;
             while (CurrentTime.TimeOfDay < TimeSpan.FromHours(23))
@@ -56,13 +55,13 @@ namespace PizzaCooking.Domain
                 GroupPizzamakers[BestPizzamaker(GroupPizzamakers)].Name, GroupPizzamakers[BestPizzamaker(GroupPizzamakers)].OrdersDone));
             foreach (var man in GroupPizzamakers)
             {
-                if (man.OrdersDone > 20)
+                if (man.OrdersDone > 35)
                 {
                     Say($"Большой молодец-{man.Name}, {man.OrdersDone} выполнено заказов");
                 }
                 else
                 {
-                    if (man.OrdersDone > 10)
+                    if (man.OrdersDone > 17)
                     {
                         Say($"Молодец-{man.Name}, {man.OrdersDone} выполнено заказов");
                     }
@@ -98,7 +97,7 @@ namespace PizzaCooking.Domain
             {
                 "Поторопитесь, в очереди много заказов!",
                 "Стало многовато заказов! Пора поднапрячься, любимые",
-                "Ребята, помогите! " + boss.Name + " пытается закрыть смену. Заказов многовато стало"
+                "Ребята, помогите! " + boss.Name + " пытается закрыть смену сегодня идеально в 23:00. Заказов многовато стало"
             };
         }
 
@@ -145,7 +144,7 @@ namespace PizzaCooking.Domain
 
         public void PhrasesAll(List<(Order order, IEnumerator<int> process)> currentlyInProcess, List<Pizzamaker> groupPizzamakers)
         {
-            if (CurrentTime >= FraseSaid.AddMinutes(60))
+            if (CurrentTime >= FraseSaid.AddMinutes(60) && groupPizzamakers[BestPizzamaker(groupPizzamakers)].OrdersDone>10)
             {
                 switch (_rnd.Next(1, 6))
                 {
@@ -164,7 +163,7 @@ namespace PizzaCooking.Domain
 
             if (currentlyInProcess.Count > 10 && CurrentTime >= FraseSaid.AddMinutes(15))
             {
-                Say($"{CurrentTime} {ManyOrdersWords[_rnd.Next(0, 3)]}");
+                Say(ManyOrdersWords[_rnd.Next(0, 3)]);
                 FraseSaid = CurrentTime;
             } //Много заказов
 

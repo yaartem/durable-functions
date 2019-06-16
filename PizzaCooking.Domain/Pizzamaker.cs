@@ -29,9 +29,9 @@ namespace PizzaCooking.Domain
         {
             if (!Busy)
             {
-                if (OrdersDone > 10)
+                if (OrdersDone > 15)
                 {
-                    if (OrdersDone > 20) ForgotToTake = rnd.Next(0, 25) != 0;
+                    if (OrdersDone > 30) ForgotToTake = rnd.Next(0, 25) != 0;
                     else
                         ForgotToTake = rnd.Next(0, 4) != 0;
                 }

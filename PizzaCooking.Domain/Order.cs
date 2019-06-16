@@ -95,6 +95,11 @@ namespace PizzaCooking.Domain
                 State = "Is Delivering";
                 yield return 0;
             }
+            if (CurrentTime == TimeTaken + TimeToDeliver)
+            {
+                State = "Is Delivered";
+                yield return 0;
+            }
         }
 
         public Order(TimeSpan timeToDeliver, DateTime orderRecievedTime, int orderNumber,
