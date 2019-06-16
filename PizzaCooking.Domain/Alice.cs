@@ -81,9 +81,9 @@ namespace PizzaCooking.Domain
             yield return 0;
         }
 
-        private void Say(string what)
+        private void Say(string message)
         {
-            _logger.Log(what);
+            _logger.LogColored(message, ConsoleColor.DarkRed);
         }
 
         public Alice(Manager boss, List<(Order order, IEnumerator<int> process)> currentlyInProcessing,

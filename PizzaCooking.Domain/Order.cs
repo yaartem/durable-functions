@@ -7,15 +7,27 @@ namespace PizzaCooking.Domain
 {
     public class Order
     {
-        public TimeSpan TimeToDeliver{get;}
-        public TimeSpan TimeToCook => TimeSpan.FromMinutes(_pizzas.Count*5);
+        public TimeSpan TimeToDeliver { get; }
+        public TimeSpan TimeToCook => TimeSpan.FromMinutes(_pizzas.Count * 5);
         public DateTime OrderRecievedTime { get; }
         public DateTime OrderTakenForCookingTime { set; get; }
         public int OrderNumber { get; }
         public DateTime CurrentTime { get; set; }
-        public string State { get; set; }
-        public DateTime TimeTaken {get; set;}
-        
+
+        public string State
+        {
+            get => _state;
+            set {
+                if (_state != value)
+                {
+                    _state = value;
+                    ShowState();
+                }
+            }
+        }
+
+        public DateTime TimeTaken { get; set; }
+
         private readonly List<Menu.Pizza> _pizzas;
 
         private readonly List<Menu.Meal> _meals;
@@ -24,7 +36,7 @@ namespace PizzaCooking.Domain
         private readonly ILogger _logger;
 
         public bool AnyDrinks => _drinks.Count > 0;
-        
+
         public int PizzaCount => _pizzas.Count;
 
         private string _content;
@@ -35,7 +47,7 @@ namespace PizzaCooking.Domain
                     .Concat(_meals.Select(m => m.ToString()))
                     .Concat(_drinks.Select(d => d.ToString()))
             ));
-        
+
         public struct Menu
         {
             public enum Pizza
@@ -55,34 +67,31 @@ namespace PizzaCooking.Domain
             }
         }
 
-        public bool TakenToDeliver=false;
+        public bool TakenToDeliver = false;
         public bool TakenToCook = false;
+        private string _state;
 
         public IEnumerable<int> GetSequence()
         {
             while (OrderRecievedTime != OrderTakenForCookingTime && !TakenToCook)
             {
                 State = "Is Waiting To Be Cooked";
-                ShowState();
                 yield return 0;
             }
             while (CurrentTime < OrderTakenForCookingTime + TimeToCook)
             {
                 State = "Is Cooking";
-                ShowState();
                 yield return 0;
             }
 
             while (CurrentTime >= OrderTakenForCookingTime + TimeToCook && !TakenToDeliver)
             {
                 State = "Is Ready To Be Taken";
-                ShowState();
                 yield return 0;
             }
-            while (CurrentTime < TimeTaken+TimeToDeliver)
+            while (CurrentTime < TimeTaken + TimeToDeliver)
             {
                 State = "Is Delivering";
-                ShowState();
                 yield return 0;
             }
         }

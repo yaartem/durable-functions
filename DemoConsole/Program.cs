@@ -17,15 +17,25 @@ namespace DemoConsole
         private static void Main(string[] args)
         {
             var logsBegin = 0;
-            var logsLen = 10;
-            var key = ConsoleKey.A;
+            const int logsLen = 10;
+            var key = ConsoleKey.UpArrow;
             while (key != ConsoleKey.Q)
             {
                 Console.Clear();
-                if (key == ConsoleKey.Z) logsBegin += logsLen;
+                if (key == ConsoleKey.DownArrow) logsBegin += 1;
+                if (key == ConsoleKey.UpArrow) logsBegin -= 1;
+                if (logsBegin < 0)
+                {
+                    logsBegin = 0;
+                }
+                var prevColor = Console.BackgroundColor;
+                Console.BackgroundColor = ConsoleColor.DarkCyan;
+                Console.WriteLine($"Показываются шаги с {logsBegin} по {logsBegin+logsLen}.");
+                Console.BackgroundColor = prevColor;
+
                 var logger = new SampleLogger();
                 var iLogger = (ILogger) logger;
-
+                
                 var currentTime = new DateTime(2019, 3, 27, 8, 59, 0);
                 var pizzeria = new Pizzeria(logger);
                 pizzeria.CurrentTime = currentTime;
@@ -72,10 +82,18 @@ namespace DemoConsole
     {
         private bool _logsEnabled;
 
-        public void Log(string what)
+        public void Log(string message)
         {
             if (!_logsEnabled) return;
-            Console.WriteLine(what);
+            Console.WriteLine(message);
+        }
+        public void LogColored(string message, ConsoleColor color)
+        {
+            if (!_logsEnabled) return;
+            var prev = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.WriteLine(message);
+            Console.ForegroundColor = prev;
         }
 
         public void SetLogginEnabled(bool enable)

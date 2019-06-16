@@ -78,7 +78,7 @@ namespace DemoConsole
 
                 nextInProcessing.Clear();
  
-                Log($"Current Time: {CurrentTime}");
+                _logger.LogColored($"Current Time: {CurrentTime}", ConsoleColor.Green);
                 a.CurrentTime = CurrentTime;
 
                 if (!aliceProcessFinished)
@@ -114,7 +114,10 @@ namespace DemoConsole
                 currentlyInProcessing.Clear();
                 currentlyInProcessing.AddRange(nextInProcessing);
             }
-            alisaProcess.MoveNext();
+            if (!aliceProcessFinished)
+            {
+                aliceProcessFinished = !alisaProcess.MoveNext();
+            }
         }
 
         void Log(string what)
