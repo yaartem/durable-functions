@@ -33,7 +33,7 @@ namespace DemoConsole
                 Console.BackgroundColor = prevColor;
 
                 var currentTime = sampleDate;
-                var pizzeria = new Pizzeria(logger);
+                var pizzeria = TestPizzeria.CreatePizzeria(logger);
                 pizzeria.CurrentTime = currentTime;
 
                 Console.WriteLine();

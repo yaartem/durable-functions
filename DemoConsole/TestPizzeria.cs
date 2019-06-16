@@ -8,6 +8,11 @@ namespace DemoConsole
 {
     public static class TestPizzeria
     {
+        private static string  CreateName(DeterministicRandom rnd)
+        {
+            return ((Names)rnd.Next(0, 32)).ToString();
+        }
+
         private static (List<Order.Menu.Meal>, List<Order.Menu.Pizza>, List<Order.Menu.Drinks>)
             GetSampleFood(DeterministicRandom random)
         {
@@ -37,6 +42,26 @@ namespace DemoConsole
             var (meals, pizzas, drinks) = GetSampleFood(random);
             var order = new OrderEvent(timeToDeliver, orderRecievedTime, orderNumber, meals, pizzas, drinks);
             return order;
+        }
+
+        public static Pizzeria CreatePizzeria(ILogger logger)
+        {
+            DeterministicRandom random=new DeterministicRandom(243);
+            List<Deliverer> groupDeliverers = new List<Deliverer>();
+            List<Pizzamaker> groupPizzamakers = new List<Pizzamaker>();
+            var boss = new Manager(CreateName(random));
+            for (int i = 1; i <= 25; i++)
+            {
+                var deliverer = new Deliverer(i, CreateName(random), logger);
+                groupDeliverers.Add(deliverer);
+            }
+
+            for (int i = 1; i <= 10; i++)
+            {
+
+                groupPizzamakers.Add(new Pizzamaker(i, CreateName(random), random, logger));
+            }
+            return new Pizzeria(logger, groupDeliverers, boss, groupPizzamakers);
         }
 
         public static List<OrderEvent> GenerateSampleOrders(DateTime date, DeterministicRandom random, ILogger logger)

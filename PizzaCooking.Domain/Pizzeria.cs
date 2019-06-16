@@ -6,57 +6,34 @@ using Utilities.Deterministic;
 
 namespace DemoConsole
 {
-    class Pizzeria
+    public class Pizzeria
     {
         private readonly ILogger _logger;
-        
         readonly DeterministicRandom _rnd;
         public DateTime CurrentTime { get; set; }
         Queue<Order> orders = new Queue<Order>();
-        
         List<Deliverer> groupDeliverers = new List<Deliverer>();
         List<Pizzamaker> groupPizzamakers = new List<Pizzamaker>();
-        
-        Manager boss;
         List<(Order order,IEnumerator<int> process)> currentlyInProcessing = new List<(Order order, IEnumerator<int> process)>();
         Alice a;
         List<(Order order, IEnumerator<int> process)> nextInProcessing = new List<(Order order, IEnumerator<int> process)>();
         private IEnumerator<int> alisaProcess;
         private bool aliceProcessFinished;
 
-        public Pizzeria(ILogger logger)
+        public Pizzeria(ILogger logger, List<Deliverer> groupDeliverers, Manager boss, List<Pizzamaker> groupPizzamakers)
         {
             _logger = logger;
             _rnd = new DeterministicRandom(123);
-            boss = new Manager(CreateName());
             a = new Alice(boss, currentlyInProcessing, groupPizzamakers, _rnd, logger);
-            for (int i = 1; i <= 25; i++)
-            {
-                var deliverer = new Deliverer(i, CreateName(), logger);
-                groupDeliverers.Add(deliverer);
-            }
-
-            for (int i = 1; i <= 10; i++)
-            {
-               
-                groupPizzamakers.Add(new Pizzamaker(i, CreateName(), _rnd, logger));
-            }
-
+            this.groupDeliverers = groupDeliverers;
+            this.groupPizzamakers = groupPizzamakers;
             alisaProcess = a.GetSequence().GetEnumerator();
-
             aliceProcessFinished = false;
         }
-
-        string CreateName()
-        {
-            return ((Names) _rnd.Next(0, 32)).ToString();
-        }
+        
         public void TakeOrder(Order o)
         {
-
             orders.Enqueue(o); 
-                     
-            
         }
         public IEnumerator<int> Work()
         {
