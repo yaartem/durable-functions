@@ -77,7 +77,7 @@ namespace DemoConsole
             var ordernum = 0;
             while (currentTime < endTime)
             {
-                if (random.Next(1, 101) > 60 && currentTime.Hour < 23)
+                if (random.Next(1, 101) > 55 && currentTime.Hour < 23)
                 {
                     orderList.Add(CreateSampleOrder(
                         TimeSpan.FromMinutes(random.Next(15, 31)), currentTime, ordernum, random));

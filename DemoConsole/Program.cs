@@ -17,6 +17,7 @@ namespace DemoConsole
             
             var logsBegin = 0;
             const int logsLen = 5;
+            var maxlog=logsLen;
             var key = ConsoleKey.UpArrow;
             while (key != ConsoleKey.Q)
             {
@@ -27,9 +28,14 @@ namespace DemoConsole
                 {
                     logsBegin = 0;
                 }
+
+                if (logsBegin + logsLen - 1 >maxlog)
+                {
+                    logsBegin = maxlog - logsLen + 1;
+                }
                 var prevColor = Console.BackgroundColor;
                 Console.BackgroundColor = ConsoleColor.DarkCyan;
-                Console.WriteLine($"Показываются шаги с {logsBegin} по {logsBegin+logsLen - 1}. ↑-На один шаг назад, ↓-один шаг вперед");
+                Console.WriteLine($"Показываются шаги с {logsBegin} по {logsBegin+logsLen - 1}. Стрелка вверх-один шаг назад, стрелка вниз-один шаг вперед");
                 Console.BackgroundColor = prevColor;
 
                 var currentTime = sampleDate;
@@ -68,7 +74,10 @@ namespace DemoConsole
                         
                         logger.SetLogginEnabled(ShowLogs());
                     }
+                    
                 }
+
+                maxlog = stepCount;
 
                 Console.WriteLine("Press any key to continue");
                 key = Console.ReadKey().Key;

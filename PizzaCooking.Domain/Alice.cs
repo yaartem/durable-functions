@@ -142,6 +142,19 @@ namespace PizzaCooking.Domain
             return max;
         }
 
+        private bool BusyTime(List<(Order order, IEnumerator<int> process)> currentlyInProcessing)
+        {
+            var count = 0;
+            foreach (var item in currentlyInProcessing)
+            {
+                if (item.order.State == "Is Cooking" || item.order.State == "Is Waiting To Be Cooked")
+                    count++;
+            }
+
+            if (count > 5) return true;
+            else return false;
+        }
+
         public void PhrasesAll(List<(Order order, IEnumerator<int> process)> currentlyInProcess, List<Pizzamaker> groupPizzamakers)
         {
             if (CurrentTime >= FraseSaid.AddMinutes(60) && groupPizzamakers[BestPizzamaker(groupPizzamakers)].OrdersDone>10)
@@ -161,10 +174,9 @@ namespace PizzaCooking.Domain
                 }
             } //Хвальба лучших
 
-            if (currentlyInProcess.Count > 10 && CurrentTime >= FraseSaid.AddMinutes(15))
+            if (BusyTime(currentlyInProcess))
             {
                 Say(ManyOrdersWords[_rnd.Next(0, 3)]);
-                FraseSaid = CurrentTime;
             } //Много заказов
 
             foreach (var item in currentlyInProcess)
